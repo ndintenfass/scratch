@@ -1,6 +1,6 @@
 test:
   pre:
-    - echo 'starting 5'
+    - echo 'starting 6'
   override:
     - echo 'override'
     - sleep 120
