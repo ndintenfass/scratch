@@ -1,5 +1,5 @@
 test:
   pre:
-    - echo 'starting'
+    - echo 'starting 2'
   override:
     - echo 'override'
