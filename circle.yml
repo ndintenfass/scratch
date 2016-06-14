@@ -1,8 +1,3 @@
-machine:
-  environment:
-    - FOO = 1
-
-
 test:
   pre:
     - echo 'starting'
