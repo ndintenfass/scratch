@@ -5,3 +5,4 @@ jobs:
     working_directory: ~/whatever
     steps:
       - run: echo "hello world"
+      - run: echo $FLEEB
