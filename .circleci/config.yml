@@ -2,6 +2,6 @@ version: 2
 jobs:
   build:
     machine: true
-    working_directory: /whatever
+    working_directory: ~/whatever
     steps:
       - run: echo "hello world"
