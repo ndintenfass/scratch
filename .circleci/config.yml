@@ -3,4 +3,4 @@ jobs:
   build:
     machine:
       steps:
-        - run: echo "hello world"
+      - run: echo "hello world"
