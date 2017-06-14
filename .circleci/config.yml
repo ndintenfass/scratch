@@ -1,8 +1,40 @@
+defaults: &defaults
+  working_directory: /tmp
+  docker:
+    - image: buildpack-deps:jessie
+
 version: 2
 jobs:
-  build:
-    machine: true
-    working_directory: ~/whatever
+  flow:
+    <<: *defaults
     steps:
-      - run: echo "hello world"
-      - run: echo $FLEEB
+      - run: mkdir -p workspace
+      - run: echo "Hello, world!" > workspace/echo-output
+
+      - persist_to_workspace:
+          root: workspace
+          paths:
+            - echo-output
+
+  downstream:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+
+      - run: |
+          if [[ `cat /tmp/workspace/echo-output` == "Hello, world!" ]]; then
+            echo "It worked!";
+          else
+            echo "Nope!"; exit 1
+          fi
+
+workflows:
+  version: 2
+
+  btd:
+    jobs:
+      - flow
+      - downstream:
+          requires:
+            - flow
