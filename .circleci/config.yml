@@ -1,4 +1,5 @@
 version: 2.0
+
 jobs:
   build:
     docker:
@@ -9,5 +10,5 @@ jobs:
       - setup_remote_docker
       - run:
           name: Build app
-            command: |
-              docker run -v $PWD/repo:/app ubuntu ls -la
+          command: |
+            docker run -v $PWD/repo:/app ubuntu ls -la
