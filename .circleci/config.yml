@@ -1,40 +1,14 @@
-defaults: &defaults
-  working_directory: /tmp
-  docker:
-    - image: buildpack-deps:jessie
+version: 2.0
 
-version: 2
 jobs:
-  flow:
-    <<: *defaults
+  build:
+    docker:
+      - image: docker:17.03.2-ce
+    working_directory: ~/repo
     steps:
-      - run: mkdir -p workspace
-      - run: echo "Hello, world!" > workspace/echo-output
-
-      - persist_to_workspace:
-          root: workspace
-          paths:
-            - echo-output
-
-  downstream:
-    <<: *defaults
-    steps:
-      - attach_workspace:
-          at: /tmp/workspace
-
-      - run: |
-          if [[ `cat /tmp/workspace/echo-output` == "Hello, world!" ]]; then
-            echo "It worked!";
-          else
-            echo "Nope!"; exit 1
-          fi
-
-workflows:
-  version: 2
-
-  btd:
-    jobs:
-      - flow
-      - downstream:
-          requires:
-            - flow
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build app
+            command: |
+              docker run -v $PWD/repo:/app ubuntu ls -la
