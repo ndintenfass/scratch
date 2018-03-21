@@ -6,7 +6,6 @@ jobs:
       - image: docker:17.10.0-ce-git
     working_directory: ~/repo
     steps:
-      - run: curl https://httpbin.org/get
       - setup_remote_docker
       - run:
           name: update_stack2
