@@ -7,10 +7,6 @@ jobs:
     working_directory: ~/repo
     steps:
       - run: curl https://httpbin.org/get
-      - run:
-          name: update_stack
-          command: |
-            curl -vvv -s -X PUT -d "`echo foo`" -H "X-Aglet-Token: \"whatebver\"" -k "https://httpbin.org/put"
       - setup_remote_docker
       - run:
           name: update_stack2
