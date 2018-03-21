@@ -3,12 +3,18 @@ version: 2.0
 jobs:
   build:
     docker:
-      - image: docker:17.03.2-ce
+      - image: docker:17.10.0-ce-git
     working_directory: ~/repo
     steps:
-      - checkout
+      - run: curl https://httpbin.org/get
+      - run:
+          name: update_stack
+          command: |
+            curl -vvv -s -X PUT -d "`echo foo`" -H "X-Aglet-Token: \"whatebver\"" -k "https://httpbin.org/put"
       - setup_remote_docker
       - run:
-          name: Build app
+          name: update_stack2
           command: |
-            docker run -v ~repo:/app ubuntu ls -la
+            curl -vvv -s -X PUT -d "`echo foo`" -H "X-Aglet-Token: \"whatebver\"" -k "https://httpbin.org/put"
+
+
