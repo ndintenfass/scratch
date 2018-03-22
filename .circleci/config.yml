@@ -4,11 +4,11 @@ workflows:
   version: 2
   whatever:
     jobs:
-      - foo/buildme
+      - /foo/buildme
 
 
 jobs:
-  foo/buildme:
+  /foo/buildme:
     docker:
       - image: docker:17.10.0-ce-git
     working_directory: ~/repo
