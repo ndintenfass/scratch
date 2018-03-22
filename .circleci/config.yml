@@ -3,7 +3,7 @@ version: 2.0
 workflows:
   version: 2
   whatever:
-    foo/buildme
+    - foo/buildme
 
 
 jobs:
