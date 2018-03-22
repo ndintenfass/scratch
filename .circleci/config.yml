@@ -13,6 +13,6 @@ jobs:
       - image: docker:17.10.0-ce-git
     working_directory: ~/repo
     steps:
-      - echo whatever
+      - run: echo whatever
 
 
