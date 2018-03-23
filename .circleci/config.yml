@@ -12,8 +12,12 @@ workflows:
     jobs:
       - a
       - b
-      - c
-      - c
+      - c:
+          requires:
+            - a
+      - c:
+          requires:
+            - b
 
 
 jobs:
