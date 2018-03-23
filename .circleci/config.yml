@@ -1,18 +1,27 @@
 version: 2.0
 
+jobbody: &jobbody
+  docker:
+    - image: docker:17.10.0-ce-git
+  steps:
+    run: echo "I am in ${CIRCLE_JOB}"
+
 workflows:
   version: 2
   whatever:
     jobs:
-      - /foo/buildme
+      - a
+      - b
+      - c
+      - c
 
 
 jobs:
-  /foo/buildme:
-    docker:
-      - image: docker:17.10.0-ce-git
-    working_directory: ~/repo
-    steps:
-      - run: echo whatever
+  a:
+    <<: *jobbody
+  b:
+    <<: *jobbody
+  c:
+    <<: *jobbody
 
 
