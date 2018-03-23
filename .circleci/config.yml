@@ -4,7 +4,7 @@ jobbody: &jobbody
   docker:
     - image: docker:17.10.0-ce-git
   steps:
-    run: echo "I am in ${CIRCLE_JOB}"
+    - run: echo "I am in ${CIRCLE_JOB}"
 
 workflows:
   version: 2
