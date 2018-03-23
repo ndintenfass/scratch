@@ -14,10 +14,10 @@ workflows:
       - b
       - c:
           requires:
-            - a
+            - b
       - c:
           requires:
-            - b
+            - a
 
 
 jobs:
