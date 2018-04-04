@@ -2,7 +2,7 @@ version: 2.0
 
 jobbody: &jobbody
   docker:
-    - image: docker:17.10.0-ce-git
+    - image: circleci/ruby:2.5.1-node-browsers
   steps:
     - run: echo "I am in ${CIRCLE_JOB}"
 
@@ -18,8 +18,6 @@ workflows:
       - c:
           requires:
             - a
-
-
 jobs:
   a:
     <<: *jobbody
