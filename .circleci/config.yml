@@ -4,11 +4,12 @@ jobbody: &jobbody
   docker:
     - image: circleci/ruby:2.5.1-node-browsers
   steps:
+    - checkout
     - run: echo "I am in ${CIRCLE_JOB}"
 
 workflows:
   version: 2
-  whatever:
+  💩:
     jobs:
       - a
       - b
