@@ -9,7 +9,7 @@ jobbody: &jobbody
 
 workflows:
   version: 2
-  💩:
+  foo:
     jobs:
       - a
       - b
