@@ -3,6 +3,7 @@ version: 2.0
 jobbody: &jobbody
   docker:
     - image: circleci/ruby:2.5.1-node-browsers
+  parallelism: 2
   steps:
     - checkout
     - run: echo "I am in ${CIRCLE_JOB}"
