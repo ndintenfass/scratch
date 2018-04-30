@@ -6,7 +6,7 @@ jobbody: &jobbody
   parallelism: "2"
   steps:
     - checkout
-    - run: echo "I am in ${CIRCLE_JOB}"
+    - do thing
 
 jobs:
   build:
