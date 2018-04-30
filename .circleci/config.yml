@@ -5,7 +5,7 @@ jobbody: &jobbody
     - image: circleci/ruby:2.5.1-node-browsers
   steps:
     - checkout
-    - do thing
+    - echo thing
 
 jobs:
   build:
