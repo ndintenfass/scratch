@@ -1,15 +1,27 @@
-version: 2.0
-
-jobbody: &jobbody
-  docker:
-    - image: circleci/ruby:2.5.1-node-browsers
-  steps:
-    - checkout
-    - echo thing
-
-jobs:
-  build:
-    <<: *jobbody
-
-
-
+{
+  "version": 2,
+  "jobbody": {
+    "docker": [
+      {
+        "image": "circleci/ruby:2.5.1-node-browsers"
+      }
+    ],
+    "steps": [
+      "checkout",
+      "echo thing"
+    ]
+  },
+  "jobs": {
+    "build": {
+      "docker": [
+        {
+          "image": "circleci/ruby:2.5.1-node-browsers"
+        }
+      ],
+      "steps": [
+        "checkout",
+        "echo thing"
+      ]
+    }
+  }
+}

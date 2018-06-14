@@ -1,8 +1,0 @@
-test:
-  pre:
-    - echo 'starting 6'
-  override:
-    - echo 'override'
-    - sleep 120
-    - echo 'done'
-    - echo date +'%Y-%m-%d %H:%M:%S'
