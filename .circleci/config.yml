@@ -1,16 +1,5 @@
 {
   "version": 2,
-  "jobbody": {
-    "docker": [
-      {
-        "image": "circleci/ruby:2.5.1-node-browsers"
-      }
-    ],
-    "steps": [
-      "checkout",
-      "echo thing"
-    ]
-  },
   "jobs": {
     "build": {
       "docker": [
@@ -20,7 +9,7 @@
       ],
       "steps": [
         "checkout",
-        "echo thing"
+        "run": "echo thing"
       ]
     }
   }
