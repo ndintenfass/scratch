@@ -1,16 +1,17 @@
+version: 2
 # THIS IS GENERATED CONFIGURATION DUE TO AN ERROR IN YOUR BUILD
 #
 # CONFIG STATE: No configuration found in project
 #
 # GENERATED: 2018-06-20T21:40:04+00:00
-version: 2
+
 
 workflows:
   version: 2
-  'Config Processing Error': {jobs: ['Config Processing Error']}
+  "Config Processing Error": {jobs: ["Config Processing Error"]}
 
 jobs:
-  'Config Processing Error'::
+  "Config Processing Error":
     docker:
       images:
         - image: bash:4.4.19
