@@ -5,19 +5,19 @@ version: 2
 #
 # GENERATED: 2018-06-20T21:40:04+00:00
 
-
 workflows:
   version: 2
-  "Config Processing Error": {jobs: ["Config Processing Error"]}
+  'Config Processing Error': {jobs: ['Config Processing Error']}
+version: 2
+
 
 jobs:
   "Config Processing Error":
     docker:
-      images:
-        - image: bash:4.4.19
+      - image: bash:4.4.19
     steps:
       - run:
           name: No Config Found
-                command: |
-                  echo "No configuration was found in your project. Please refer to https://circleci.com/docs/2.0/#adding-a-yml-file to get started with your configuration."
-                  false
+          command: |
+            echo "No configuration was found in your project. Please refer to https://circleci.com/docs/2.0/#adding-a-yml-file to get started with your configuration."
+            false
