@@ -1,36 +1,21 @@
-jobs:
-  foo:
-    machine: true
-    steps:
-    - run: echo "nothing"
-orbs:
-  build-info:
-    commands:
-      show_runtime_info:
-        steps:
-        - run:
-            command: |
-              echo "TRIGGERER: ${CIRCLE_USERNAME}"
-              echo "BUILD_NUMBER: ${BUILD_NUMBER}"
-              echo "BUILD_URL: ${BUILD_URL}"
-              echo "BRANCH: ${CIRCLE_BRANCH}"
-              echo "RUNNING JOB: ${CIRCLE_JOB}"
-              echo "JOB PARALLELISM: ${CIRCLE_NODE_TOTAL}"
-              echo "CIRCLE_REPOSITORY_URL: ${CIRCLE_REPOSITORY_URL}"
-            name: Show runtime env vars and other info
-    description: An orb with a set of commands to output build information.
-    executors:
-      simple:
-        docker:
-        - image: bash:4.4.23
-    jobs:
-      dump:
-        executor: simple
-        steps:
-        - show_runtime_info
 version: 2
+jobs:
+  build-info/dump:
+    docker:
+    - image: bash:4.4.23
+    steps:
+    - run:
+        command: |
+          echo "TRIGGERER: ${CIRCLE_USERNAME}"
+          echo "BUILD_NUMBER: ${BUILD_NUMBER}"
+          echo "BUILD_URL: ${BUILD_URL}"
+          echo "BRANCH: ${CIRCLE_BRANCH}"
+          echo "RUNNING JOB: ${CIRCLE_JOB}"
+          echo "JOB PARALLELISM: ${CIRCLE_NODE_TOTAL}"
+          echo "CIRCLE_REPOSITORY_URL: ${CIRCLE_REPOSITORY_URL}"
+        name: Show runtime env vars and other info
 workflows:
-  version: 2
   info:
     jobs:
     - build-info/dump
+  version: 2
