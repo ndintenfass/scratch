@@ -1,23 +1,36 @@
-version: 2
-# THIS IS GENERATED CONFIGURATION DUE TO AN ERROR IN YOUR BUILD
-#
-# CONFIG STATE: No configuration found in project
-#
-# GENERATED: 2018-06-20T21:40:04+00:00
-
-workflows:
-  version: 2
-  'Config Processing Error': {jobs: ['Config Processing Error']}
-version: 2
-
-
 jobs:
-  "Config Processing Error":
-    docker:
-      - image: bash:4.4.19
+  foo:
+    machine: true
     steps:
-      - run:
-          name: No Config Found
-          command: |
-            echo "No configuration was found in your project. Please refer to https://circleci.com/docs/2.0/#adding-a-yml-file to get started with your configuration."
-            false
+    - run: echo "nothing"
+orbs:
+  build-info:
+    commands:
+      show_runtime_info:
+        steps:
+        - run:
+            command: |
+              echo "TRIGGERER: ${CIRCLE_USERNAME}"
+              echo "BUILD_NUMBER: ${BUILD_NUMBER}"
+              echo "BUILD_URL: ${BUILD_URL}"
+              echo "BRANCH: ${CIRCLE_BRANCH}"
+              echo "RUNNING JOB: ${CIRCLE_JOB}"
+              echo "JOB PARALLELISM: ${CIRCLE_NODE_TOTAL}"
+              echo "CIRCLE_REPOSITORY_URL: ${CIRCLE_REPOSITORY_URL}"
+            name: Show runtime env vars and other info
+    description: An orb with a set of commands to output build information.
+    executors:
+      simple:
+        docker:
+        - image: bash:4.4.23
+    jobs:
+      dump:
+        executor: simple
+        steps:
+        - show_runtime_info
+version: 2
+workflows:
+  info:
+    jobs:
+    - build-info/dump
+
