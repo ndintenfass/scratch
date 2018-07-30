@@ -48,9 +48,9 @@ orbs:
                 fi
                 CIRCLECI_CLI_RELEASE_API_ROOT="https://api.github.com/repos/CircleCI-Public/circleci-cli/releases/"
                 if [ "<< parameters.tag >>" == "" ]; then
-                  CIRCLECI_CLI_APPEND_VERSION = "latest"
+                  CIRCLECI_CLI_APPEND_VERSION="latest"
                 else
-                  CIRCLECI_CLI_APPEND_VERSION = tags/<< parameters.tag >>
+                  CIRCLECI_CLI_APPEND_VERSION="tags/<< parameters.tag >>""
                 fi
                 CIRCLECI_CLI_RELEASE_API_ENDPOINT=${CIRCLECI_CLI_RELEASE_API_ROOT}/${CIRCLECI_CLI_APPEND_VERSION}
                 CIRCLECI_CLI_INSTALL_VERSION=`curl --silent ${CIRCLECI_CLI_RELEASE_API_ENDPOINT} | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'`
