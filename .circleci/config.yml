@@ -29,7 +29,6 @@ orbs:
                   exit 1
                 fi
                 ARCH="$(uname -m)"
-                echo "arch string found: $ARCH"
                 if [ $ARCH == "x86_64" ]; then
                   ARCH=amd64
                 elif [[ $ARCH == arm* ]]; then
@@ -40,7 +39,7 @@ orbs:
                 fi
                 CIRCLECI_CLI_LATEST_VERSION=`curl --silent "https://api.github.com/repos/CircleCI-Public/circleci-cli/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'`
                 download_url=<< parameters.root-url >>${CIRCLECI_CLI_LATEST_VERSION}/circleci-cli_${CIRCLECI_CLI_LATEST_VERSION#v}_${OS}_${ARCH}.tar.gz
-                curl $download_url | tar -xvzf -
+                curl -L ${download_url} | tar -xvzf -
                 mv circleci /usr/local/bin
                 circleci help
 jobs:
