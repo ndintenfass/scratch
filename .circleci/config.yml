@@ -26,13 +26,15 @@ orbs:
               name: "Install circleci CLI"
               command: |
                 set -e
-                echoerr() { echo "\$@" 1>&2; }
+                # echoerr() { echo "\$@" 1>&2; }
                 if [ "\$(uname)" == "Darwin" ]; then
                   OS=darwin
                 elif [ "\$(expr substr \$(uname -s) 1 5)" == "Linux" ]; then
                   OS=linux
                 else
-                  echoerr "This installer is only supported on Linux and MacOS"
+                  # echoerr "This installer is only supported on Linux and MacOS"
+                  echo "This installer is only supported on Linux and MacOS"
+                  echo $(uname)
                   exit 1
                 fi
                 echo $OS
