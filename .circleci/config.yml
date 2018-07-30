@@ -1,23 +1,28 @@
 version: 2
+executors:
+  hugo:
+    docker:
+      - image: cibuilds/hugo:latest
 orbs:
-  orb-docs:
-    orbs:
-      utils: ndintenfass/built-utils@volatile
-    executors:
-      hugo:
-        docker:
-          - image: cibuilds/hugo:latest
-    commands:
-      list-orbs:
-        steps:
-          - utils/install-circleci-cli
-          - run: circleci orb list
+  utils: ndintenfass/built-utils@volatile
+  # orb-docs:
+  #   orbs:
+  #     utils: ndintenfass/built-utils@volatile
+  #   executors:
+  #     hugo:
+  #       docker:
+  #         - image: cibuilds/hugo:latest
+  #   commands:
+  #     list-orbs:
+  #       steps:
+  #         - utils/install-circleci-cli
+  #         - run: circleci orb list
 
 jobs:
   build:
-    executor: orb-docs/hugo
+    executor: hugo
     steps:
-      - orb-docs/list-orbs
+      - utils/install-circleci-cli
 
 
 
