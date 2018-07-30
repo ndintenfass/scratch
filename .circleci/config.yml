@@ -23,7 +23,7 @@ orbs:
       install-circleci-cli:
         steps:
           - latest-cli-version
-          - run
+          - run:
               name: "Install circleci CLI"
               command: |
                 set -e
