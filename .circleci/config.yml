@@ -4,7 +4,7 @@ executors:
     docker:
       - image: cibuilds/hugo:latest
 orbs:
-  utils: ndintenfass/built-utils@volatile
+  utils: ndintenfass/build-utils@volatile
   # orb-docs:
   #   orbs:
   #     utils: ndintenfass/built-utils@volatile
