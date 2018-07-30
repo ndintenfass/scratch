@@ -12,9 +12,7 @@ orbs:
             description: the root URL used to generate the download link. You almost certainly can rely on the default value.
             type: string
             default: "https://github.com/CircleCI-Public/circleci-cli/releases/download/"
-
         steps:
-          - latest-cli-version
           - run:
               name: "Install `circleci` CLI"
               command: |
