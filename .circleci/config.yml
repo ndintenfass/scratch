@@ -38,9 +38,10 @@ orbs:
                   exit 1
                 fi
                 CIRCLECI_CLI_LATEST_VERSION=`curl --silent "https://api.github.com/repos/CircleCI-Public/circleci-cli/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'`
-                download_url=<< parameters.root-url >>${CIRCLECI_CLI_LATEST_VERSION}/circleci-cli_${CIRCLECI_CLI_LATEST_VERSION#v}_${OS}_${ARCH}.tar.gz
+                CIRCLECI_CLI_RELEASE_NAME="circleci-cli_${CIRCLECI_CLI_LATEST_VERSION#v}_${OS}_${ARCH}"
+                download_url=<< parameters.root-url >>${CIRCLECI_CLI_LATEST_VERSION}/${CIRCLECI_CLI_RELEASE_NAME}.tar.gz
                 curl -L ${download_url} | tar -xvzf -
-                mv circleci /usr/local/bin
+                mv ${CIRCLECI_CLI_RELEASE_NAME}/circleci /usr/local/bin
                 circleci help
 jobs:
   build:
