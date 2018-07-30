@@ -48,7 +48,7 @@ orbs:
                   echo "unsupported arch: $ARCH"
                   exit 1
                 fi
-                echo "$(OS)_$(ARCH)"
+                echo "${OS}_${ARCH}"
                 
 jobs:
   build:
