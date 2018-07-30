@@ -32,7 +32,7 @@ orbs:
                 }
                 if [ $(uname) == "Darwin" ]; then
                   OS=darwin
-                elif [ $(expr substr $(uname -s) 1 5) == "Lidnux" ]; then
+                elif [ $(expr substr $(uname -s) 1 5) == "Linux" ]; then
                   OS=linux
                 else
                   echoerr "This installer is only supported on Linux and MacOS"
