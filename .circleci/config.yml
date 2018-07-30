@@ -40,7 +40,8 @@ orbs:
                 fi
                 CIRCLECI_CLI_LATEST_VERSION=`curl --silent "https://api.github.com/repos/CircleCI-Public/circleci-cli/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'`
                 download_url=<< parameters.root-url >>${CIRCLECI_CLI_LATEST_VERSION}/circleci-cli_${CIRCLECI_CLI_LATEST_VERSION#v}_${OS}_${ARCH}.tar.gz
-                echo $download_url             
+                curl $download_url | tar -xvzf
+                mv circleci /usr/local/bin   
 jobs:
   build:
     executor: orb-docs/hugo
