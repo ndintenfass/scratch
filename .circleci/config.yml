@@ -54,7 +54,7 @@ orbs:
                   echoerr "This installer does not support your architecture: $ARCH"
                   exit 1
                 fi
-                download_url=<< parameters.root-url >>$(CIRCLECI_CLI_LATEST_VERSION)/circleci-cli_${CIRCLECI_CLI_LATEST_VERSION#v)_${OS}_${ARCH}.tar.gz
+                download_url=<< parameters.root-url >>${CIRCLECI_CLI_LATEST_VERSION}/circleci-cli_${CIRCLECI_CLI_LATEST_VERSION#v}_${OS}_${ARCH}.tar.gz
                 echo $download_url
                 
 jobs:
