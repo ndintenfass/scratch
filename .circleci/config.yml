@@ -16,13 +16,14 @@ orbs:
             type: string
         steps:
           - run:
-              name: "Save latest CircleCI CLI release version to an environment variable"
+              name: "Save latest CircleCI CLI release version to an environment variable called << parameters.var-name >>"
               command: |
                 export << parameters.var-name >>=`curl --silent "https://api.github.com/repos/CircleCI-Public/circleci-cli/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'` 
                 echo $<< parameters.var-name >>
       install-circleci-cli:
         steps:
-          - run:
+          - latest-cli-version
+          - run
               name: "Install circleci CLI"
               command: |
                 set -e
@@ -37,7 +38,18 @@ orbs:
                   echo $(uname)
                   exit 1
                 fi
-                echo $OS
+                ARCH="\$(uname -m)"
+                echo "arch string found: $ARCH"
+                if [ $ARCH == "x86_64" ]; then
+                  ARCH=x64
+                elif [[ $ARCH == arm* ]]; then
+                  ARCH=arm
+                else
+                  echo "unsupported arch: $ARCH"
+                  exit 1
+                fi
+                echo $OS_$ARCH
+                
 jobs:
   build:
     executor: orb-docs/hugo
