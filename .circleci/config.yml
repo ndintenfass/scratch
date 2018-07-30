@@ -52,7 +52,7 @@ orbs:
                 else
                   CIRCLECI_CLI_APPEND_VERSION="tags/<< parameters.tag >>"
                 fi
-                CIRCLECI_CLI_RELEASE_API_ENDPOINT=${CIRCLECI_CLI_RELEASE_API_ROOT}/${CIRCLECI_CLI_APPEND_VERSION}
+                CIRCLECI_CLI_RELEASE_API_ENDPOINT=${CIRCLECI_CLI_RELEASE_API_ROOT}${CIRCLECI_CLI_APPEND_VERSION}
                 echo "Retrieve the latest version by looking for tag_name in ${CIRCLECI_CLI_RELEASE_API_ENDPOINT} "
                 CIRCLECI_CLI_INSTALL_VERSION=`curl --silent "${CIRCLECI_CLI_RELEASE_API_ENDPOINT}" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'`
                 if [ ! $CIRCLECI_CLI_INSTALL_VERSION ]; then
