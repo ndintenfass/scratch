@@ -1,26 +1,44 @@
 version: 2
+orbs:
+  orb-docs:
+    executors:
+      hugo:
+        docker:
+          - image: cibuilds/hugo:latest
+    commands:
+      latest-cli-version:
+        parameters:
+          var-name: 
+            description:
+                "The name of an environment variable to store the version in.
+                Defaults to CIRCLECI_CLI_LATEST_VERSION"
+            default: CIRCLECI_CLI_LATEST_VERSION
+            type: string
+        steps:
+          - run:
+              name: "Save latest CircleCI CLI release version to an environment variable"
+              command: |
+                export << parameters.var-name >>=`curl --silent "https://api.github.com/repos/CircleCI-Public/circleci-cli/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")'`
+                echo $<< parameters.var-name >>
+      install-circleci-cli:
+        steps:
+          - run:
+              name: "Install circleci CLI"
+              command: |
+                if [ "\$(uname)" == "Darwin" ]; then
+                  OS=darwin
+                elif [ "\$(expr substr \$(uname -s) 1 5)" == "Linux" ]; then
+                  OS=linux
+                else
+                  echoerr "This installer is only supported on Linux and MacOS"
+                  exit 1
+                fi
+                echo $OS
 jobs:
-  build-info/dump:
-    docker:
-    - image: bash:4.4.23
+  build:
+    executor: orb-docs/hugo
     steps:
-    - run:
-        command: |
-          echo "TRIGGERER: ${CIRCLE_USERNAME}"
-          echo "BUILD_NUMBER: ${CIRCLE_BUILD_NUM}"
-          echo "BUILD_URL: ${CIRCLE_BUILD_URL}"
-          echo "BRANCH: ${CIRCLE_BRANCH}"
-          echo "RUNNING JOB: ${CIRCLE_JOB}"
-          echo "JOB PARALLELISM: ${CIRCLE_NODE_TOTAL}"
-          echo "CIRCLE_REPOSITORY_URL: ${CIRCLE_REPOSITORY_URL}"
-        name: Show runtime env vars and other info about the build
-    - run:
-        command: |
-          echo "arch: " $(arch)
-          echo "uname:" $(uname -a)
-        name: Show system information
-workflows:
-  info:
-    jobs:
-    - build-info/dump
-  version: 2
+      - orb-docs/latest-cli-version
+      - install-circleci-cli
+
+
