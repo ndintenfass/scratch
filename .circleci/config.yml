@@ -5,18 +5,18 @@ executors:
       - image: cibuilds/hugo:latest
 orbs:
   utils: ndintenfass/build-utils@volatile
-  # orb-docs:
-  #   orbs:
-  #     utils: ndintenfass/built-utils@volatile
-  #   executors:
-  #     hugo:
-  #       docker:
-  #         - image: cibuilds/hugo:latest
-  #   commands:
-  #     list-orbs:
-  #       steps:
-  #         - utils/install-circleci-cli
-  #         - run: circleci orb list
+  orb-docs:
+    orbs:
+      utils: ndintenfass/built-utils@volatile
+    executors:
+      hugo:
+        docker:
+          - image: cibuilds/hugo:latest
+    commands:
+      list-orbs:
+        steps:
+          - utils/install-circleci-cli
+          - run: circleci orb list
 
 jobs:
   build:
