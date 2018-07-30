@@ -39,6 +39,6 @@ jobs:
     executor: orb-docs/hugo
     steps:
       - orb-docs/latest-cli-version
-      - install-circleci-cli
+      - orb-docs/install-circleci-cli
 
 
