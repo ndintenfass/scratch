@@ -38,7 +38,7 @@ orbs:
                   echo $(uname)
                   exit 1
                 fi
-                ARCH="\$(uname -m)"
+                ARCH="$(uname -m)"
                 echo "arch string found: $ARCH"
                 if [ $ARCH == "x86_64" ]; then
                   ARCH=x64
