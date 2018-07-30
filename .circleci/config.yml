@@ -62,7 +62,7 @@ orbs:
                 download_url=<< parameters.root-url >>${CIRCLECI_CLI_INSTALL_VERSION}/${CIRCLECI_CLI_RELEASE_NAME}.tar.gz
                 curl -L ${download_url} | tar -xvzf -
                 mv ${CIRCLECI_CLI_RELEASE_NAME}/circleci << parameters.path >>
-                if ! type circleci > /dev/null; then
+                if [! $(type circleci > /dev/null)]; then
                   echoerr "Something went wrong installing the circleci CLI"
                   exit 1
                 fi
