@@ -21,6 +21,12 @@ orbs:
                 export << parameters.var-name >>=`curl --silent "https://api.github.com/repos/CircleCI-Public/circleci-cli/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'` 
                 echo $<< parameters.var-name >>
       install-circleci-cli:
+        parameters:
+          root-url:
+            description: the root URL used to generate the download link. You almost certainly can rely on the default value.
+            type: string
+            default: "https://github.com/CircleCI-Public/circleci-cli/releases/download/"
+
         steps:
           - latest-cli-version
           - run:
@@ -36,8 +42,6 @@ orbs:
                   OS=linux
                 else
                   echoerr "This installer is only supported on Linux and MacOS"
-                  echo "This installer is only supported on Linux and MacOS"
-                  echo $(uname)
                   exit 1
                 fi
                 ARCH="$(uname -m)"
@@ -50,8 +54,8 @@ orbs:
                   echoerr "unsupported arch: $ARCH"
                   exit 1
                 fi
-
-                echo "${OS}_${ARCH}"
+                download_url=<< parameters.root-url >>$(CIRCLECI_CLI_LATEST_VERSION)/circleci-cli_${CIRCLECI_CLI_LATEST_VERSION#v)_${OS}_${ARCH}.tar.gz
+                echo $download_url
                 
 jobs:
   build:
