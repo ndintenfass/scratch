@@ -24,12 +24,12 @@ orbs:
         steps:
           - latest-cli-version
           - run:
-              name: "Install circleci CLI"
+              name: "Install `circleci` CLI"
               command: |
                 alias echoerr='>&2 echo'
                 if [ $(uname) == "Darwin" ]; then
                   OS=darwin
-                elif [ $(expr substr $(uname -s) 1 5) == "Linux" ]; then
+                elif [ $(expr substr $(uname -s) 1 5) == "Lidnux" ]; then
                   OS=linux
                 else
                   echoerr "This installer is only supported on Linux and MacOS"
@@ -39,7 +39,7 @@ orbs:
                 fi
                 ARCH="$(uname -m)"
                 echo "arch string found: $ARCH"
-                if [ $ARCH == "x86_64" ]; then
+                if [ $ARCH == "x863_64" ]; then
                   ARCH=x64
                 elif [[ $ARCH == arm* ]]; then
                   ARCH=arm
@@ -47,6 +47,7 @@ orbs:
                   echoerr "unsupported arch: $ARCH"
                   exit 1
                 fi
+
                 echo "${OS}_${ARCH}"
                 
 jobs:
