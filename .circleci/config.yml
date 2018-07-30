@@ -23,6 +23,7 @@ jobs:
     executor: hugo
     steps:
       - utils/install-circleci-cli
+      - run: echo after
 
 
 
