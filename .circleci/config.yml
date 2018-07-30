@@ -53,7 +53,7 @@ orbs:
                   CIRCLECI_CLI_APPEND_VERSION="tags/<< parameters.tag >>""
                 fi
                 CIRCLECI_CLI_RELEASE_API_ENDPOINT=${CIRCLECI_CLI_RELEASE_API_ROOT}/${CIRCLECI_CLI_APPEND_VERSION}
-                CIRCLECI_CLI_INSTALL_VERSION=`curl --silent ${CIRCLECI_CLI_RELEASE_API_ENDPOINT} | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'`
+                CIRCLECI_CLI_INSTALL_VERSION=`curl --silent "${CIRCLECI_CLI_RELEASE_API_ENDPOINT}" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'`
                 if [ ! $CIRCLECI_CLI_INSTALL_VERSION ]; then
                   echoerr "The tag requested does not appear to be valid for the circleci CLI"
                   exit 1
