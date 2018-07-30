@@ -25,6 +25,7 @@ orbs:
           - run:
               name: "Install circleci CLI"
               command: |
+                echoerr() { echo "\$@" 1>&2; }
                 if [ "\$(uname)" == "Darwin" ]; then
                   OS=darwin
                 elif [ "\$(expr substr \$(uname -s) 1 5)" == "Linux" ]; then
