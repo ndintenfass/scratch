@@ -18,7 +18,7 @@ orbs:
           - run:
               name: "Save latest CircleCI CLI release version to an environment variable"
               command: |
-                export << parameters.var-name >>=`curl --silent "https://api.github.com/repos/CircleCI-Public/circleci-cli/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")'`
+                export << parameters.var-name >>=`curl --silent "https://api.github.com/repos/CircleCI-Public/circleci-cli/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'` 
                 echo $<< parameters.var-name >>
       install-circleci-cli:
         steps:
@@ -27,9 +27,9 @@ orbs:
               command: |
                 set -e
                 # echoerr() { echo "\$@" 1>&2; }
-                if [ "\$(uname)" == "Darwin" ]; then
+                if [ $(uname) == "Darwin" ]; then
                   OS=darwin
-                elif [ "\$(expr substr \$(uname -s) 1 5)" == "Linux" ]; then
+                elif [ $(expr substr $(uname -s) 1 5) == "Linux" ]; then
                   OS=linux
                 else
                   # echoerr "This installer is only supported on Linux and MacOS"
