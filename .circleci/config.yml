@@ -6,20 +6,6 @@ orbs:
         docker:
           - image: cibuilds/hugo:latest
     commands:
-      latest-cli-version:
-        parameters:
-          var-name: 
-            description:
-                "The name of an environment variable to store the version in.
-                Defaults to CIRCLECI_CLI_LATEST_VERSION"
-            default: CIRCLECI_CLI_LATEST_VERSION
-            type: string
-        steps:
-          - run:
-              name: "Save latest CircleCI CLI release version to an environment variable called << parameters.var-name >>"
-              command: |
-                export << parameters.var-name >>=`curl --silent "https://api.github.com/repos/CircleCI-Public/circleci-cli/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'` 
-                echo $<< parameters.var-name >>
       install-circleci-cli:
         parameters:
           root-url:
@@ -54,9 +40,9 @@ orbs:
                   echoerr "This installer does not support your architecture: $ARCH"
                   exit 1
                 fi
+                CIRCLECI_CLI_LATEST_VERSION=`curl --silent "https://api.github.com/repos/CircleCI-Public/circleci-cli/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'`
                 download_url=<< parameters.root-url >>${CIRCLECI_CLI_LATEST_VERSION}/circleci-cli_${CIRCLECI_CLI_LATEST_VERSION#v}_${OS}_${ARCH}.tar.gz
-                echo $download_url
-                
+                echo $download_url             
 jobs:
   build:
     executor: orb-docs/hugo
