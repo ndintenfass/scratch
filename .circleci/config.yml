@@ -65,7 +65,7 @@ orbs:
                 curl -L ${download_url} | tar -xvzf -
                 mv ${CIRCLECI_CLI_RELEASE_NAME}/circleci << parameters.install-dir >>
                 echo "Make sure the CLI is now installed and is ready for use."
-                if [ ! $(type circleci) ]; then
+                if [ ! $(type circleci > dev/null) ]; then
                   echoerr "Something went wrong installing the circleci CLI"
                   exit 1
                 fi
