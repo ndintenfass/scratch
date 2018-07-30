@@ -26,7 +26,10 @@ orbs:
           - run:
               name: "Install `circleci` CLI"
               command: |
-                alias echoerr='>&2 echo'
+                echoerr ()
+                {
+                    echo "$@" >&2
+                }
                 if [ $(uname) == "Darwin" ]; then
                   OS=darwin
                 elif [ $(expr substr $(uname -s) 1 5) == "Lidnux" ]; then
