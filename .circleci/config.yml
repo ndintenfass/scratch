@@ -26,14 +26,13 @@ orbs:
           - run:
               name: "Install circleci CLI"
               command: |
-                set -e
-                # echoerr() { echo "\$@" 1>&2; }
+                alias echoerr='>&2 echo'
                 if [ $(uname) == "Darwin" ]; then
                   OS=darwin
                 elif [ $(expr substr $(uname -s) 1 5) == "Linux" ]; then
                   OS=linux
                 else
-                  # echoerr "This installer is only supported on Linux and MacOS"
+                  echoerr "This installer is only supported on Linux and MacOS"
                   echo "This installer is only supported on Linux and MacOS"
                   echo $(uname)
                   exit 1
@@ -45,7 +44,7 @@ orbs:
                 elif [[ $ARCH == arm* ]]; then
                   ARCH=arm
                 else
-                  echo "unsupported arch: $ARCH"
+                  echoerr "unsupported arch: $ARCH"
                   exit 1
                 fi
                 echo "${OS}_${ARCH}"
@@ -54,7 +53,6 @@ jobs:
   build:
     executor: orb-docs/hugo
     steps:
-      - orb-docs/latest-cli-version
       - orb-docs/install-circleci-cli
 
 
