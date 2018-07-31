@@ -4,7 +4,6 @@ executors:
     docker:
       - image: cibuilds/hugo:latest
 orbs:
-  utils: ndintenfass/build-utils@volatile
   orb-docs:
     orbs:
       utils: ndintenfass/built-utils@volatile
@@ -22,8 +21,5 @@ jobs:
   build:
     executor: hugo
     steps:
-      - utils/install-circleci-cli
-      - run: echo after
-
-
+      - orb-docs/list-orbs
 
