@@ -1,5 +1,5 @@
-# this was run with version 2, it should fail
-version: 2
+# this was run with version 2.1, it should succeed
+version: 2.1
 executors:
   hugo:
     docker:
