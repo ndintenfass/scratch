@@ -1,4 +1,4 @@
-# this was run with version 2, it should fail
+# this was run with version 2, it should fail.
 version: 2
 executors:
   hugo:
