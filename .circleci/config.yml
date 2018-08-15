@@ -1,19 +1,7 @@
-# this was run with version 2, it should fail.
 version: 2
-executors:
-  hugo:
-    docker:
-      - image: cibuilds/hugo:latest
-orbs:
-  orb-docs:
-    commands:
-      list-orbs:
-        steps:
-          - run: curl https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh --fail --show-error | bash
-          - run: circleci orb list
 jobs:
   build:
-    executor: hugo
+    docker:
+      - image: circleci/ruby:2.4.1-jessie
     steps:
-      - orb-docs/list-orbs
-
+      - run: echo "A first hello"
