@@ -1,7 +1,21 @@
-version: 2
-jobs:
-  build:
-    docker:
-      - image: circleci/ruby:2.4.1-jessie
-    steps:
-      - run: echo "A first hello hello2"
+version: 2.1
+
+orbs:
+  orb-utils:
+    executors:
+      default:
+        docker:
+          - image: circleci/ruby:2.5.1-node
+    jobs:
+      orb-doc-generation:
+        executor: default
+        steps:
+          - checkout
+          - run: snap install yq
+          # TODO: this could get fragile as more people use config packing
+          - run: yq r ./.circleci/config.yml
+
+workflows:
+  test:
+    jobs:
+      - orb-utils/orb-doc-generation
