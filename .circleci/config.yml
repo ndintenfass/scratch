@@ -1,19 +1,7 @@
 version: 2.1
 
 orbs:
-  orb-utils:
-    executors:
-      default:
-        docker:
-          - image: circleci/ruby:2.5.1-node
-    jobs:
-      orb-doc-generation:
-        executor: default
-        steps:
-          - checkout
-          - run: sudo npm install -g js-yaml
-          # TODO: this could get fragile as more people use config packing
-          - run: js-yaml ./.circleci/config.yml | jq '.orbs'
+  orb-utils: ndintenfass/orb-utils@dev:test
 
 workflows:
   test:
