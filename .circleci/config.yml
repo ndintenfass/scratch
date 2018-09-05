@@ -11,7 +11,7 @@ orbs:
         executor: default
         steps:
           - checkout
-          - run: npm install -g js-yaml
+          - run: sudo npm install -g js-yaml
           # TODO: this could get fragile as more people use config packing
           - run: js-yaml ./.circleci/config.yml
 
