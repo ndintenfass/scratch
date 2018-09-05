@@ -13,7 +13,7 @@ orbs:
           - checkout
           - run: sudo npm install -g js-yaml
           # TODO: this could get fragile as more people use config packing
-          - run: js-yaml ./.circleci/config.yml
+          - run: js-yaml ./.circleci/config.yml | jq '.orbs'
 
 workflows:
   test:
