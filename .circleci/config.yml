@@ -5,15 +5,15 @@ orbs:
     executors:
       default:
         docker:
-          - image: drecom/ubuntu-ruby:2.5.1
+          - image: circleci/ruby:2.5.1-node
     jobs:
       orb-doc-generation:
         executor: default
         steps:
           - checkout
-          - run: snap install yq
+          - run: npm install -g js-yaml
           # TODO: this could get fragile as more people use config packing
-          - run: yq r ./.circleci/config.yml
+          - run: js-yaml ./.circleci/config.yml
 
 workflows:
   test:
