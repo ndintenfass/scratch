@@ -5,7 +5,7 @@ orbs:
     executors:
       default:
         docker:
-          - image: circleci/ruby:2.5.1-node
+          - image: cibuilds/snapcraft:stable
     jobs:
       orb-doc-generation:
         executor: default
