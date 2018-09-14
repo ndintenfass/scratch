@@ -2,7 +2,7 @@ version: 2.1
 executors:
   alpine:
     docker:
-    - image: alpine:3.7
+      - image: alpine:3.7
 
 jobs:
   my_job_x:
@@ -34,11 +34,11 @@ workflows:
   wf_2:
     triggers:
       - schedule:
-        cron: "0 0 * * *"
-        filters:
-          branches:
-            only:
-            - master
+          cron: "0 4 1 10 *"
+          filters:
+            branches:
+              only:
+                - master
     jobs:
       - my_job_x:
           your_name: "masa"
