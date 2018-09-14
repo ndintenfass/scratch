@@ -32,13 +32,6 @@ workflows:
             - my_job_x
 
   wf_2:
-    triggers:
-      - schedule:
-          cron: "0 4 1 10 *"
-          filters:
-            branches:
-              only:
-                - master
     jobs:
       - my_job_x:
           your_name: "masa"
