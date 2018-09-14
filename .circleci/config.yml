@@ -26,22 +26,22 @@ workflows:
   version: 2
   wf_1:
     jobs:
-    - my_job_x
-    - my_job_y: 
-        requires:
-          - my_job_x
+      - my_job_x
+      - my_job_y: 
+          requires:
+            - my_job_x
 
   wf_2:
     triggers:
-    - schedule:
+      - schedule:
         cron: "0 0 * * *"
         filters:
           branches:
             only:
             - master
     jobs:
-    - my_job_x:
-        your_name: "masa"
-    - my_job_y: 
-        requires:
-          - my_job_x
+      - my_job_x:
+          your_name: "masa"
+      - my_job_y: 
+          requires:
+            - my_job_x
