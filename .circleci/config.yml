@@ -1,9 +1,34 @@
 version: 2.1
 
-orbs:
-  orb-utils: ndintenfass/orb-utils@dev:test
+commands:
+  halt:
+    steps:
+      - run: echo "begin"
+      - run: circleci-agent step halt
+      - run: echo "end"
 
-workflows:
-  test:
-    jobs:
-      - orb-utils/orb-doc-generation
+jobs:
+  machine:
+    machine: true
+    steps:
+      - halt
+  docker:
+    docker:
+      - image: alpine:latest
+    steps:
+      - halt
+  macos:
+    macos:
+      xcode: "9.4.1"
+    steps:
+      - halt
+
+
+
+# orbs:
+#   orb-utils: ndintenfass/orb-utils@dev:test
+
+# workflows:
+#   test:
+#     jobs:
+#       - orb-utils/orb-doc-generation
