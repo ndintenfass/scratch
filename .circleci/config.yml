@@ -44,4 +44,4 @@ workflows:
         your_name: "masa"
     - my_job_y: 
         requires:
-          - my_job_y
+          - my_job_x
