@@ -6,6 +6,12 @@ commands:
       - run: echo "begin"
       - run: circleci-agent step halt
       - run: echo "end"
+workflows:
+  dude:
+    jobs:
+      - machine
+      - docker
+      - macos
 
 jobs:
   machine:
