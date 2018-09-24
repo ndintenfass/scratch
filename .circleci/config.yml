@@ -1,49 +1,9 @@
 version: 2.1
-executors:
-  alpine:
-    docker:
-    - image: alpine:3.7
 
-jobs:
-  my_job_x:
-    executor: alpine
-    parameters:
-      your_name:
-        type: string
-        default: "m15o"
-    steps:
-      - checkout
-      - run:
-          command: echo 'hello << parameters.your_name >>'
-        
-  my_job_y:
-    executor: alpine
-    steps:
-      - checkout
-      - run:
-          command: echo 'hi'
-  
+orbs:
+    hello: circleci/hello-build@dev:try-published-orb-tools
+
 workflows:
-  version: 2
-  wf_1:
-    jobs:
-    - my_job_x
-    - my_job_y: 
-        requires:
-          - my_job_x
-
-  wf_2:
-    triggers:
-    - schedule:
-        cron: "0 0 * * *"
-        filters:
-          branches:
-            only:
-            - master
-    jobs:
-    - my_job_x:
-        your_name: "masa"
-    - my_job_y: 
-        requires:
-          - my_job_y
-          
+    main:
+        jobs:
+          - hello/hello-build
