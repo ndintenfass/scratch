@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-    hello: circleci/hello-build@dev:try-published-orb-tools
+    hello: circleci/hello-build@volatile
 
 workflows:
     main:
