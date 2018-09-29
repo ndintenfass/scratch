@@ -15,7 +15,7 @@ orbs:
                 Boolean for whether to run a `checkout` first
                  - default is false for the command, assuming you
                  may have already done checkout in your job.
-          shell: /usr/local/bin/irb
+          shell: /usr/bin/env ruby
           steps:
             - run:
                 name: Parse through .circleci/config.yml
