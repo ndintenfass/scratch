@@ -25,4 +25,4 @@ orbs:
 workflows:
     "Orb Magic":
         jobs:
-          - orb-magic
+          - orb-magic/illuminate-this-build
