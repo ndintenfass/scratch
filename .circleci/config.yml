@@ -27,7 +27,7 @@ orbs:
             - run:
                 name: Parse .circleci/config.yml
                 command: |
-                  cat .circleci/config.yml | yq .orbs
+                  cat .circleci/config.yml | yq .orbs[]
 workflows:
     "Orb Magic":
         jobs:
