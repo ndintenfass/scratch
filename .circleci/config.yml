@@ -10,17 +10,21 @@ orbs:
           parameters:
             checkout:
               type: boolean
-              default: false
+              default: true
               description: >
                 Boolean for whether to run a `checkout` first
                  - default is false for the command, assuming you
                  may have already done checkout in your job.
           steps:
+            - when:
+                condition: << parameters.checkout >>
+                steps:
+                  - checkout
             - run:
                 name: Parse through .circleci/config.yml
                 command: |
                   sudo pip install yq
-                  which yq
+                  yq .circleci/config.yml
 
 workflows:
     "Orb Magic":
