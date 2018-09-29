@@ -15,12 +15,11 @@ orbs:
                 Boolean for whether to run a `checkout` first
                  - default is false for the command, assuming you
                  may have already done checkout in your job.
-          shell: /usr/bin/env ruby -w
           steps:
             - run:
                 name: Parse through .circleci/config.yml
                 command: |
-                  puts "I am in ruby"
+                  ruby puts "I am in ruby"
 
 workflows:
     "Orb Magic":
