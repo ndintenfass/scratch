@@ -19,7 +19,7 @@ orbs:
             - run:
                 name: Parse through .circleci/config.yml
                 command: |
-                  which jq
+                  pip install yq
                   which yq
 
 workflows:
