@@ -24,7 +24,7 @@ orbs:
                 name: Parse through .circleci/config.yml
                 command: |
                   sudo pip install yq
-                  yq 'each( .orbs )' .circleci/config.yml
+                  cat .circleci/config.yml | yq .version
 
 workflows:
     "Orb Magic":
