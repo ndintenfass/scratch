@@ -21,11 +21,13 @@ orbs:
                 steps:
                   - checkout
             - run:
-                name: Parse through .circleci/config.yml
+                name: Install yq
                 command: |
                   sudo pip install yq
-                  cat .circleci/config.yml | yq .version
-
+            - run:
+                name: Parse .circleci/config.yml
+                command: |
+                  cat .circleci/config.yml | yq .orbs
 workflows:
     "Orb Magic":
         jobs:
