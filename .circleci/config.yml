@@ -19,7 +19,8 @@ orbs:
             - run:
                 name: Parse through .circleci/config.yml
                 command: |
-                  ruby puts "I am in ruby"
+                  which jq
+                  which yq
 
 workflows:
     "Orb Magic":
