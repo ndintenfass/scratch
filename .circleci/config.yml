@@ -3,7 +3,7 @@ version: 2.1
 orbs:
   tools:
     executors:
-      default:
+      bash:
         docker:
           - image: bash:latest
 
