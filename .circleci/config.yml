@@ -1,32 +1,24 @@
 version: 2.1
+
+orbs:
+  tools:
+    executors:
+      default:
+        docker:
+          - image: bash:latest
+
+commands:
+  foo:
+    parameters:
+      what:
+        type: string
+    steps:
+      - run: echo << parameters.what >>
 jobs:
-  loadsay:
-    machine: true
-    steps:
-      - run: echo "hi"
-
-  sayhello:
-    machine: true
-    steps:
-      - run: echo "hello"
-
-  saygoodbye:
-    machine: true
-    steps:
-      - run: echo "bye"
-
-workflows:
-  version: 2
   build:
-    jobs:
-      - loadsay
-      - sayhello:
-          requires:
-            - loadsay
-
-      - sayhello:
-          name: SayHelloChad
-
-      - saygoodbye:
-          requires:
-            - SayHelloChad
+    executor: tools/bash
+    steps:
+      - foo:
+          what: first
+      - foo:
+        what: second
