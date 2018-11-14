@@ -21,4 +21,4 @@ jobs:
       - foo:
           what: first
       - foo:
-        what: second
+          what: second
