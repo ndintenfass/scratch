@@ -8,4 +8,5 @@ jobs:
   build:
     executor: bt/ruby
     steps:
-      - sc/shallow-clone-checkout
+      - sc/shallow-clone-checkout:
+          use-https: true
