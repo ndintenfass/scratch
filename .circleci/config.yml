@@ -1,24 +1,11 @@
 version: 2.1
 
-orbss:
-  tools:
-    executors:
-      bash:
-        docker:
-          - image: bash:latest
+orbs:
+  sc: ganta/git@1.1.0
+  bt: sandbox/build-tools@dev:publish-from-inline
 
-commands:
-  foo:
-    parameters:
-      what:
-        type: string
-    steps:
-      - run: echo << parameters.what >>
 jobs:
   build:
-    executor: tools/bash
+    executor: bt/ruby
     steps:
-      - foo:
-          what: first
-      - foo:
-          what: second
+      - sc/shallow-clone-checkout
