@@ -1,12 +1,9 @@
 version: 2.1
 
-orbs:
-  sc: ganta/git@1.1.0
-  bt: sandbox/build-tools@dev:publish-from-inline
-
 jobs:
   build:
-    executor: bt/ruby
+    docker:
+      - image: bash
     steps:
-      - sc/shallow-clone-checkout:
-          use-https: true
+      - run: >
+          echo "I have a : in me"
