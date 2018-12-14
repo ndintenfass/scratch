@@ -5,4 +5,4 @@ jobs:
     docker:
       - image: bash
     steps:
-      - run: "echo \"I have a : in me\""
+      - run: 'echo "I have a : in me"'
