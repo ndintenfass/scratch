@@ -16,4 +16,4 @@ jobs:
     working_directory: << pipeline.parameters.workingdir >>
     steps:
       - run: echo "Image tag used was ${IMAGETAG}"
-      - run: echo "$(pwd) == << pipeline.parameters.workingdir >>" 
+      - run: echo "$(pwd) == << pipeline.parameters.workingdir >>"
