@@ -5,7 +5,7 @@ parameters:
     default: "latest"
   workingdir:
     type: string
-    default: "./main"
+    default: "~/main"
 
 jobs:
   build:
