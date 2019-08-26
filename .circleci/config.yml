@@ -6,6 +6,9 @@ parameters:
   workingdir:
     type: string
     default: "~/main"
+  cache-version:
+    type: string
+    default: "v1"
 
 jobs:
   build:
@@ -17,12 +20,20 @@ jobs:
     steps:
       - run: echo "Image tag used was ${IMAGETAG}"
       - run: echo "$(pwd) == << pipeline.parameters.workingdir >>"
-
+      - restore_cache:
+                keys:
+                  - << pipeline.cache-prefix >>-{{ .Branch }}-{{ .Revision }}
+                  - << pipeline.cache-prefix >>-{{ .Branch }}-
+      - checkout
+      - save_cache:
+          key: << pipeline.cache-prefix >>-{{ .Branch }}-{{ .Revision }}
+          paths:
+            - ".git"
 
 workflows:
   one:
     jobs:
       - build
-  two:
-    jobs:
-      - build
+      - build:
+          requires:
+            - build
