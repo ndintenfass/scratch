@@ -10,6 +10,20 @@ parameters:
     type: string
     default: "v1"
 
+commands:
+  cached-checkout:
+    steps:
+      - restore_cache:
+                keys:
+                  - << pipeline.parameters.cache-version >>-{{ .Branch }}-{{ .Revision }}
+                  - << pipeline.parameters.cache-version >>-{{ .Branch }}-
+      - checkout
+      - save_cache:
+          key: << pipeline.parameters.cache-version >>-{{ .Branch }}-{{ .Revision }}
+          paths:
+            - ".git"
+
+
 jobs:
   build:
     docker:
@@ -21,20 +35,6 @@ jobs:
       - run: echo "Image tag used was ${IMAGETAG}"
       - run: echo "$(pwd) == << pipeline.parameters.workingdir >>"
       - run: echo "API Version << pipeline.parameters.cache-version >>"
-      - restore_cache:
-                keys:
-                  - << pipeline.parameters.cache-version >>-{{ .Branch }}-{{ .Revision }}
-                  - << pipeline.parameters.cache-version >>-{{ .Branch }}-
-      - checkout
-      - save_cache:
-          key: << pipeline.parameters.cache-version >>-{{ .Branch }}-{{ .Revision }}
-          paths:
-            - ".git"
+      - cached-checkout
 
-workflows:
-  main:
-    jobs:
-      - build
-      - build:
-          requires:
-            - build
+
