@@ -32,7 +32,7 @@ jobs:
             - ".git"
 
 workflows:
-  one:
+  main:
     jobs:
       - build
       - build:
