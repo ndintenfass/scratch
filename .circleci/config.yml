@@ -12,17 +12,20 @@ parameters:
 
 commands:
   cached-checkout:
+    parameters:
+      cache-version:
+        type: string
+        default: << pipeline.parameters.cache-version >>
     steps:
       - restore_cache:
                 keys:
-                  - << pipeline.parameters.cache-version >>-{{ .Branch }}-{{ .Revision }}
-                  - << pipeline.parameters.cache-version >>-{{ .Branch }}-
+                  - << parameters.cache-version >>-{{ .Branch }}-{{ .Revision }}
+                  - << parameters.cache-version >>-{{ .Branch }}-
       - checkout
       - save_cache:
-          key: << pipeline.parameters.cache-version >>-{{ .Branch }}-{{ .Revision }}
+          key: << parameters.cache-version >>-{{ .Branch }}-{{ .Revision }}
           paths:
             - ".git"
-
 
 jobs:
   build:
