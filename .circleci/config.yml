@@ -20,11 +20,12 @@ jobs:
     steps:
       - run: echo "Image tag used was ${IMAGETAG}"
       - run: echo "$(pwd) == << pipeline.parameters.workingdir >>"
+      - run: echo "API Version << pipeline.parameters.cache-version >>"
       # - restore_cache:
       #           keys:
       #             - << pipeline.cache-version >>-{{ .Branch }}-{{ .Revision }}
       #             - << pipeline.cache-version >>-{{ .Branch }}-
-      # - checkout
+      - checkout
       # - save_cache:
       #     key: << pipeline.cache-version >>-{{ .Branch }}-{{ .Revision }}
       #     paths:
