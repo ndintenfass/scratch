@@ -20,15 +20,15 @@ jobs:
     steps:
       - run: echo "Image tag used was ${IMAGETAG}"
       - run: echo "$(pwd) == << pipeline.parameters.workingdir >>"
-      - restore_cache:
-                keys:
-                  - << pipeline.cache-version >>-{{ .Branch }}-{{ .Revision }}
-                  - << pipeline.cache-version >>-{{ .Branch }}-
-      - checkout
-      - save_cache:
-          key: << pipeline.cache-version >>-{{ .Branch }}-{{ .Revision }}
-          paths:
-            - ".git"
+      # - restore_cache:
+      #           keys:
+      #             - << pipeline.cache-version >>-{{ .Branch }}-{{ .Revision }}
+      #             - << pipeline.cache-version >>-{{ .Branch }}-
+      # - checkout
+      # - save_cache:
+      #     key: << pipeline.cache-version >>-{{ .Branch }}-{{ .Revision }}
+      #     paths:
+      #       - ".git"
 
 workflows:
   one:
