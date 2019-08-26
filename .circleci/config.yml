@@ -22,11 +22,11 @@ jobs:
       - run: echo "$(pwd) == << pipeline.parameters.workingdir >>"
       - restore_cache:
                 keys:
-                  - << pipeline.cache-prefix >>-{{ .Branch }}-{{ .Revision }}
-                  - << pipeline.cache-prefix >>-{{ .Branch }}-
+                  - << pipeline.cache-version >>-{{ .Branch }}-{{ .Revision }}
+                  - << pipeline.cache-version >>-{{ .Branch }}-
       - checkout
       - save_cache:
-          key: << pipeline.cache-prefix >>-{{ .Branch }}-{{ .Revision }}
+          key: << pipeline.cache-version >>-{{ .Branch }}-{{ .Revision }}
           paths:
             - ".git"
 
