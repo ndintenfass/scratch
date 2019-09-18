@@ -40,4 +40,12 @@ jobs:
       - run: echo "API Version << pipeline.parameters.cache-version >>"
       - cached-checkout
 
+workflows:
+  build:
+    jobs:
+      - approve:
+          type: approval
+      - build:
+          requires:
+            - approve
 
