@@ -36,9 +36,10 @@ jobs:
     working_directory: << pipeline.parameters.workingdir >>
     steps:
       - run: echo "No. << pipeline.number >> ID << pipeline.id >>"
+      - run: echo "Image tag used was << pipeline.parameters.image-tag >>"
       - run: echo "Image tag used was ${IMAGETAG}"
       - run: echo "$(pwd) == << pipeline.parameters.workingdir >>"
-      - run: echo "API Version << pipeline.parameters.cache-version >>"
+      - run: echo "Cache Version << pipeline.parameters.cache-version >>"
       - cached-checkout
 
 workflows:
