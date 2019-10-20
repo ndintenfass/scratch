@@ -18,9 +18,9 @@ commands:
         default: << pipeline.parameters.cache-version >>
     steps:
       - restore_cache:
-                keys:
-                  - << parameters.cache-version >>-{{ .Branch }}-{{ .Revision }}
-                  - << parameters.cache-version >>-{{ .Branch }}-
+          keys:
+            - << parameters.cache-version >>-{{ .Branch }}-{{ .Revision }}
+            - << parameters.cache-version >>-{{ .Branch }}-
       - checkout
       - save_cache:
           key: << parameters.cache-version >>-{{ .Branch }}-{{ .Revision }}
