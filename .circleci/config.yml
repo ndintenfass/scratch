@@ -35,7 +35,7 @@ jobs:
       IMAGETAG: << pipeline.parameters.image-tag >>
     working_directory: << pipeline.parameters.workingdir >>
     steps:
-      - run: echo "No. << pipeline.number >> ID << pipeline.id >>"
+      - run: echo "Hi Eddie. No. << pipeline.number >> ID << pipeline.id >>"
       - run: echo "Image tag used was << pipeline.parameters.image-tag >>"
       - run: echo "Image tag used was ${IMAGETAG}"
       - run: echo "$(pwd) == << pipeline.parameters.workingdir >>"
