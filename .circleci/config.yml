@@ -4,7 +4,10 @@ jobs:
   build:
     docker:
       - image: circleci/node:latest
+    environment:
+      CIRCLE_COMPARE_URL: << pipeline.project.git_url >>/compare/<< pipeline.git.base_revision >>..<<pipeline.git.revision>>
     steps:
+      - run: echo $CIRCLE_COMPARE_URL
       - run: echo 'pipeline.id                << pipeline.id                >> - a globally unique id representing the pipeline'
       - run: echo 'pipeline.number            << pipeline.number            >> - a project unique integer id for the pipeline'
       - run: echo 'pipeline.project.git_url   << pipeline.project.git_url   >> - e.g. https://github.com/circleci/circleci-docs'
