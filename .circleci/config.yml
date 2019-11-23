@@ -1,27 +1,20 @@
 version: 2.1
+parameters:
+  image-tag:
+    type: enum
+    default: "latest"
+    enum: ["latest","bleeding","stable201911"]
+  workingdir:
+    type: string
+    default: "main-app"
 
 jobs:
-  one:
+  build:
     docker:
-      - image: circleci/node:latest
+      - image: circleci/node:<< pipeline.parameters.image-tag >>
+    environment:
+      IMAGETAG: << pipeline.parameters.image-tag >>
+    working_directory: /Code/<< pipeline.parameters.workingdir >>
     steps:
-      - run: echo succeed
-  two:
-    docker:
-      - image: circleci/node:latest
-    steps:
-      - run: echo fail && exit 1
-  three:
-    docker:
-      - image: circleci/node:latest
-    steps:
-      - run: echo succeed
-
-workflows:
-  main:
-    jobs:
-      - one
-      - two
-      - three:
-          requires:
-            - two
+      - run: echo "Image tag used was ${IMAGETAG}"
+      - run: echo "$(pwd) == << pipeline.parameters.workingdir >>"
