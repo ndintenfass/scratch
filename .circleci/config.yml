@@ -1,20 +1,26 @@
 version: 2.1
-parameters:
-  image-tag:
-    type: enum
-    default: "latest"
-    enum: ["latest","bleeding","stable201911"]
-  workingdir:
-    type: string
-    default: "main-app"
+
+orbs:
+  myorb:
+    executors:
+      default:
+        parameters:
+          image-name:
+            type: string
+            default: "circleci/node"
+          image-tag:
+            type: string
+            default: "latest"
+        docker:
+          - image: << parameters.image-name>>:<< parameters.image-tag >>
 
 jobs:
   build:
-    docker:
-      - image: circleci/node:<< pipeline.parameters.image-tag >>
-    environment:
-      IMAGETAG: << pipeline.parameters.image-tag >>
-    working_directory: /Code/<< pipeline.parameters.workingdir >>
+    executor: myorb/default
     steps:
-      - run: echo "Image tag used was ${IMAGETAG}"
-      - run: echo "$(pwd) == << pipeline.parameters.workingdir >>"
+      - run: docker -v
+
+
+
+
+
