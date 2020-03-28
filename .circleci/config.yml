@@ -14,6 +14,15 @@ orbs:
         docker:
           - image: << parameters.image-name>>:<< parameters.image-tag >>
 
+commands:
+  mine:
+    parameters:
+      matrix:
+        type: string
+        default: "hi"
+    steps:
+      - run: echo << parameters.matrix >>
+
 jobs:
   build:
     executor: myorb/default
