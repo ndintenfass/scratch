@@ -29,8 +29,18 @@ jobs:
     steps:
       - run: docker -v
       - mine
+  mine:
+    parameters:
+      matrix:
+        type: string
+        default: "hi"
+    executor: myorb/default
+    steps:
+      - run: echo << parameters.matrix >>
 
-
-
+workflows:
+  mine:
+    jobs:
+      - mine
 
 
