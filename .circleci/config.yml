@@ -42,7 +42,9 @@ workflows:
   mine:
     jobs:
       - mine:
-          matrix: "hi there"
+          matrix:
+            parameters:
+              matrix: ["first", "second"]
 
 
 
