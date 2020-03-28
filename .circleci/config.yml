@@ -41,6 +41,8 @@ jobs:
 workflows:
   mine:
     jobs:
-      - mine
+      - mine:
+          matrix: "hi there"
+
 
 
