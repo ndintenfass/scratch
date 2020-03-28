@@ -28,6 +28,7 @@ jobs:
     executor: myorb/default
     steps:
       - run: docker -v
+      - mine
 
 
 
