@@ -38,7 +38,8 @@ commands:
     steps:
       - run: rover graph fetch rickmorty@current > rickmorty.graphql
       - run: rover graph fetch countries1@current > countries.graphql
-      - run: echo "subgraphs: { rick-and-morty: {routing_url: 'https://rickandmortyapi.com/graphql', schema: { file: 'rickmorty.graphql' }} }" > supergraph1.yml
+      - run: |
+          echo "subgraphs: { rick-and-morty: {routing_url: 'https://rickandmortyapi.com/graphql', schema: { file: 'rickmorty.graphql' }} }" > supergraph1.yml
 
 
 jobs:
