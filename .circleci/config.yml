@@ -36,8 +36,8 @@ orbs:
 commands:
   bootstrap-build:
     steps:
-      # - run: rover graph fetch rickmorty@current > rickmorty.graphql
-      - run: rover graph fetch countries1@current > rickmorty.graphql
+      - run: rover graph fetch rickmorty@current > rickmorty.graphql
+      - run: rover graph fetch countries1@current > countries.graphql
 
 
 jobs:
