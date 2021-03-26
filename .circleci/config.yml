@@ -42,6 +42,7 @@ jobs:
       - rover/install
       - run: rover --version
       - run: ls -al
+      - run: pwd
       - rover/build:
           path: supergraph.yml
   
