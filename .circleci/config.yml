@@ -41,6 +41,7 @@ jobs:
       - run: docker -v
       - rover/install
       - run: rover --version
+      - run: ls -al
       - rover/build:
           path: supergraph.yml
   
