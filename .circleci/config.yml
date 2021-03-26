@@ -53,10 +53,7 @@ jobs:
 workflows:
   mine:
     jobs:
-      - mine:
-          matrix:
-            parameters:
-              matrix: ["first", "second"]
+      - build
 
 
 
