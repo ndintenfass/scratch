@@ -3,7 +3,11 @@ version: 2.1
 parameters:
   config:
     type: string
-    default: "subgraphs: { rick-and-morty: {routing_url: 'https://rickandmortyapi.com/graphql', schema: { file: 'rickmorty.graphql' }} }"
+    default: >
+      subgraphs: {
+        rick-and-morty: {
+          routing_url: 'https://rickandmortyapi.com/graphql',
+          schema: { file: 'rickmorty.graphql' }} }
 
 
 orbs:
