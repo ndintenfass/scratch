@@ -1,0 +1,5 @@
+subgraphs:
+  rick-and-morty:
+    routing_url: https://rickandmortyapi.com/graphql
+    schema: 
+      file: graphql/rick-and-morty.graphql
