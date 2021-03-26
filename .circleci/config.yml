@@ -1,5 +1,11 @@
 version: 2.1
 
+parameters:
+  config:
+    type: string
+    default: "subgraphs: { rick-and-morty: {routing_url: 'https://rickandmortyapi.com/graphql', schema: { file: 'rickmorty.graphql' }} }"
+
+
 orbs:
   myorb:
     executors:
@@ -7,10 +13,10 @@ orbs:
         parameters:
           image-name:
             type: string
-            default: "cimg/rust"
+            default: "cimg/base"
           image-tag:
             type: string
-            default: "1.50.0"
+            default: "2021.03"
         docker:
           - image: << parameters.image-name>>:<< parameters.image-tag >>
 
@@ -39,7 +45,7 @@ commands:
       - run: rover graph fetch rickmorty@current > rickmorty.graphql
       - run: rover graph fetch countries1@current > countries.graphql
       - run: |
-          echo "subgraphs: { rick-and-morty: {routing_url: 'https://rickandmortyapi.com/graphql', schema: { file: 'rickmorty.graphql' }} }" > supergraph1.yml
+          echo "<< pipeline.parameters.config >>" > supergraph1.yml
 
 
 jobs:
