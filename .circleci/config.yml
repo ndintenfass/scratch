@@ -38,6 +38,7 @@ jobs:
   build:
     executor: myorb/default
     steps:
+      - checkout
       - run: docker -v
       - rover/install
       - run: rover --version
