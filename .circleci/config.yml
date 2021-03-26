@@ -37,8 +37,8 @@ jobs:
       - bootstrap-build
       - rover/build:
           path: << pipeline.parameters.config-file >>
-      - run: rover subgraph push funkyfederation --routing-url https://rickandmortyapi.com/graphql --schema rickmorty.graphql --name rickmorty
-      - run: rover subgraph push funkyfederation --routing-url https://countries.trevorblades.com/ --schema rickmorty.graphql --name rickmorty
+      - run: rover subgraph publish funkyfederation --routing-url https://rickandmortyapi.com/graphql --schema rickmorty.graphql --name rickmorty
+      - run: rover subgraph publish funkyfederation --routing-url https://countries.trevorblades.com/ --schema countries.graphql --name countries
     
 
 orbs:
