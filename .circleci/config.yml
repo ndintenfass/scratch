@@ -1,6 +1,12 @@
 version: 2.1
 
 parameters:
+  mything:
+    type: string
+    default: "hi"
+  myotherthing:
+    type: string
+    default: "hi << pipeline.parameters.mything >>"
   config:
     type: string
     default: >
