@@ -33,7 +33,6 @@ jobs:
       - checkout
       - run: docker -v
       - rover/install
-      - run: npm install --prefix=$HOME/.local --global apollo
       - run: rover --version
       - bootstrap-build
       - rover/build:
