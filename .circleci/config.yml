@@ -33,6 +33,7 @@ jobs:
       - checkout
       - run: docker -v
       - rover/install
+      - run: npm install -g apollo
       - run: rover --version
       - bootstrap-build
       - rover/build:
@@ -45,10 +46,10 @@ orbs:
         parameters:
           image-name:
             type: string
-            default: "cimg/base"
+            default: "cimg/node"
           image-tag:
             type: string
-            default: "2021.03"
+            default: "15.11.0"
         docker:
           - image: << parameters.image-name>>:<< parameters.image-tag >>
     commands:
