@@ -22,15 +22,19 @@ orbs:
             type: string
             default: "v0.0.4"
         steps:
+          ## TODO: don't install if we already have this version installed, unless a force parameter is true
           - run: curl -sSL https://raw.githubusercontent.com/apollographql/rover/<< parameters.version >>/installers/binstall/scripts/nix/install.sh | sh
           - run: echo 'export PATH=$HOME/.rover/bin:$PATH' >> $BASH_ENV
+      bootstrap-build:
+        steps:
+          - run: rover graph fetch rick-morty@current
       build:
         parameters:
           path:
             type: string
         steps:
           - run: rover core build --config << parameters.path >>
-
+  
 
 
 
