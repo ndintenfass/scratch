@@ -14,6 +14,18 @@ orbs:
         docker:
           - image: << parameters.image-name>>:<< parameters.image-tag >>
 
+
+  rover:
+    commands:
+      install:
+        parameters:
+          version:
+            type: string
+            default: "v0.0.4"
+        steps:
+          - run: curl -sSL https://raw.githubusercontent.com/apollographql/rover/<< parameters.version >>/installers/binstall/scripts/nix/install.sh | sh
+    
+
 commands:
   mine:
     parameters:
