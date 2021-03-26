@@ -7,13 +7,12 @@ orbs:
         parameters:
           image-name:
             type: string
-            default: "circleci/node"
+            default: "cimg/rust"
           image-tag:
             type: string
             default: "latest"
         docker:
           - image: << parameters.image-name>>:<< parameters.image-tag >>
-
 
   rover:
     commands:
@@ -26,30 +25,13 @@ orbs:
           - run: curl -sSL https://raw.githubusercontent.com/apollographql/rover/<< parameters.version >>/installers/binstall/scripts/nix/install.sh | sh
 
 
-commands:
-  mine:
-    parameters:
-      matrix:
-        type: string
-        default: "hi"
-    steps:
-      - run: echo << parameters.matrix >>
-
 jobs:
   build:
     executor: myorb/default
     steps:
       - run: docker -v
       - rover/install
-  mine:
-    parameters:
-      matrix:
-        type: string
-        default: "hi"
-    executor: myorb/default
-    steps:
-      - run: echo << parameters.matrix >>
-
+  
 workflows:
   mine:
     jobs:
