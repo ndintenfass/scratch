@@ -23,6 +23,7 @@ orbs:
             default: "v0.0.4"
         steps:
           - run: curl -sSL https://raw.githubusercontent.com/apollographql/rover/<< parameters.version >>/installers/binstall/scripts/nix/install.sh | sh
+          - run: echo 'export PATH=$HOME/.rover/bin:$PATH' >> $BASH_ENV
 
 
 jobs:
