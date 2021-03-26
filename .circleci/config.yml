@@ -18,6 +18,26 @@ parameters:
         }
       }
 
+commands:
+  bootstrap-build:
+    steps:
+      - run: rover graph fetch rickmorty@current > rickmorty.graphql
+      - run: rover graph fetch countries1@current > countries.graphql
+      - run: |
+          echo "<< pipeline.parameters.config >>" > << pipeline.parameters.config-file >>
+
+jobs:
+  build:
+    executor: rover/default
+    steps:
+      - checkout
+      - run: docker -v
+      - rover/install
+      - run: rover --version
+      - bootstrap-build
+      - rover/build:
+          path: << pipeline.parameters.config-file >>
+
 orbs:
   rover:
     executors:
@@ -47,29 +67,7 @@ orbs:
             type: string
         steps:
           - run: rover core build --config << parameters.path >>
-  
-
-commands:
-  bootstrap-build:
-    steps:
-      - run: rover graph fetch rickmorty@current > rickmorty.graphql
-      - run: rover graph fetch countries1@current > countries.graphql
-      - run: |
-          echo "<< pipeline.parameters.config >>" > << pipeline.parameters.config-file >>
-
-
-jobs:
-  build:
-    executor: rover/default
-    steps:
-      - checkout
-      - run: docker -v
-      - rover/install
-      - run: rover --version
-      - bootstrap-build
-      - rover/build:
-          path: << pipeline.parameters.config-file >>
-  
+    
 workflows:
   mine:
     jobs:
