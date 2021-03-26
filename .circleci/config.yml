@@ -25,9 +25,6 @@ orbs:
           ## TODO: don't install if we already have this version installed, unless a force parameter is true
           - run: curl -sSL https://raw.githubusercontent.com/apollographql/rover/<< parameters.version >>/installers/binstall/scripts/nix/install.sh | sh
           - run: echo 'export PATH=$HOME/.rover/bin:$PATH' >> $BASH_ENV
-      bootstrap-build:
-        steps:
-          - run: rover graph fetch rick-morty@current
       build:
         parameters:
           path:
@@ -36,6 +33,10 @@ orbs:
           - run: rover core build --config << parameters.path >>
   
 
+commands:
+  bootstrap-build:
+    steps:
+      - run: rover graph fetch rick-morty@current
 
 
 jobs:
@@ -46,8 +47,7 @@ jobs:
       - run: docker -v
       - rover/install
       - run: rover --version
-      - run: ls -al
-      - run: pwd
+      - bootstrap-build
       - rover/build:
           path: supergraph.yml
   
