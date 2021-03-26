@@ -1,12 +1,9 @@
 version: 2.1
 
 parameters:
-  graph1:
+  config-file:
     type: string
-    default: "countries.graphql"
-  myotherthing:
-    type: string
-    default: "hi << pipeline.parameters.mything >>"
+    default: "supergraph.yml"
   config:
     type: string
     default: >
@@ -17,13 +14,12 @@ parameters:
         },
         countries: {
           routing_url: 'https://countries.trevorblades.com/',
-          schema: { file: '<< pipeline.parameters.graph1 >>'}
+          schema: { file: 'countries.graphql'}
         }
       }
 
-
 orbs:
-  myorb:
+  rover:
     executors:
       default:
         parameters:
@@ -35,8 +31,6 @@ orbs:
             default: "2021.03"
         docker:
           - image: << parameters.image-name>>:<< parameters.image-tag >>
-
-  rover:
     commands:
       install:
         parameters:
@@ -61,12 +55,12 @@ commands:
       - run: rover graph fetch rickmorty@current > rickmorty.graphql
       - run: rover graph fetch countries1@current > countries.graphql
       - run: |
-          echo "<< pipeline.parameters.config >>" > supergraph1.yml
+          echo "<< pipeline.parameters.config >>" > << pipeline.parameters.config-file >>
 
 
 jobs:
   build:
-    executor: myorb/default
+    executor: rover/default
     steps:
       - checkout
       - run: docker -v
@@ -74,7 +68,7 @@ jobs:
       - run: rover --version
       - bootstrap-build
       - rover/build:
-          path: supergraph1.yml
+          path: << pipeline.parameters.config-file >>
   
 workflows:
   mine:

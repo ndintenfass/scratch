@@ -1,1 +1,0 @@
-subgraphs: { rick-and-morty: {routing_url: "https://rickandmortyapi.com/graphql", schema: { file: "rickmorty.graphql" }}  }
