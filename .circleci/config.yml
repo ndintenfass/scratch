@@ -25,8 +25,11 @@ orbs:
           - run: curl -sSL https://raw.githubusercontent.com/apollographql/rover/<< parameters.version >>/installers/binstall/scripts/nix/install.sh | sh
           - run: echo 'export PATH=$HOME/.rover/bin:$PATH' >> $BASH_ENV
       build:
+        parameters:
+          path:
+            type: string
         steps:
-          - run: rover core build --config supergraph.yml
+          - run: rover core build --config << parameters.path >>
 
 
 
@@ -38,6 +41,8 @@ jobs:
       - run: docker -v
       - rover/install
       - run: rover --version
+      - rover/build:
+          path: supergraph.yml
   
 workflows:
   mine:
