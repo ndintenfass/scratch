@@ -1,9 +1,9 @@
 version: 2.1
 
 parameters:
-  mything:
+  graph1:
     type: string
-    default: "hi"
+    default: "countries.graphql"
   myotherthing:
     type: string
     default: "hi << pipeline.parameters.mything >>"
@@ -17,7 +17,7 @@ parameters:
         },
         countries: {
           routing_url: 'https://countries.trevorblades.com/',
-          schema: { file: 'contries.graphql'}
+          schema: { file: 'countries.graphql'}
         }
       }
 
