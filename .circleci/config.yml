@@ -10,7 +10,7 @@ orbs:
             default: "cimg/rust"
           image-tag:
             type: string
-            default: "latest"
+            default: "1.50.0"
         docker:
           - image: << parameters.image-name>>:<< parameters.image-tag >>
 
