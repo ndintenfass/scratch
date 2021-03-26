@@ -17,7 +17,7 @@ parameters:
         },
         countries: {
           routing_url: 'https://countries.trevorblades.com/',
-          schema: { file: 'countries.graphql'}
+          schema: { file: '<< pipeline.parameters.graph1 >>'}
         }
       }
 
