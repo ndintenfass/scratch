@@ -24,7 +24,7 @@ orbs:
             default: "v0.0.4"
         steps:
           - run: curl -sSL https://raw.githubusercontent.com/apollographql/rover/<< parameters.version >>/installers/binstall/scripts/nix/install.sh | sh
-    
+
 
 commands:
   mine:
@@ -40,7 +40,7 @@ jobs:
     executor: myorb/default
     steps:
       - run: docker -v
-      - mine
+      - rover/install
   mine:
     parameters:
       matrix:
