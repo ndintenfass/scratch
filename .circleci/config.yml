@@ -73,8 +73,10 @@ commands:
                 subscriptions: false,
               });
 
+              console.log(server.listent());
+
               server.listen().then(({ url }) => {
-                console.log(`🚀 Server ready at ${url}`);
+                console.log(""Server ready at ${url}");
               });
             })();
 
