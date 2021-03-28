@@ -92,7 +92,20 @@ jobs:
       - run: npm install apollo-server graphql @apollo/gateway
       - write-gateway-index
       - run:
-          command: APOLLO_KEY=$APOLLO_KEY_GATEWAY APOLLO_GRAPH_VARIANT=current node index.js
+          command: APOLLO_KEY=$APOLLO_KEY_GATEWAY APOLLO_GRAPH_VARIANT=current node index.js &
+      - run: |
+          curl \
+          -X POST \
+          -H "Content-Type: application/json" \
+          --data '{ "query": "{ countries { code name } } " }' \
+          https://countries.trevorblades.com/
+      - run: |
+          curl \
+          -X POST \
+          -H "Content-Type: application/json" \
+          --data '{ "query": "{ countries { code name } } " }' \
+          https://localhost:4000
+
 
 orbs:
   rover:
