@@ -58,7 +58,7 @@ commands:
             });
             console.log('start the server');
             console.log(process.env.PORT);
-            console.log(process.env.THISIP)
+            console.log(process.env.THISIP);
 
 
 
