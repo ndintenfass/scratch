@@ -103,10 +103,10 @@ jobs:
       - run: npm init --yes
       - run: npm install apollo-server graphql @apollo/gateway
       - write-gateway-index
+      - run: 
       - run: node -p "require('ip').address()"
-      - run: node -p "require('ip').address()" > logs/ip.log
       - run:
-          command: APOLLO_KEY=$APOLLO_KEY_GATEWAY APOLLO_GRAPH_VARIANT=current node index.js
+          command: APOLLO_KEY=$APOLLO_KEY_GATEWAY APOLLO_GRAPH_VARIANT=current THISIP=$(node -p "require('ip').address()") node index.js
       - run: |
           curl \
           -X POST \
@@ -118,7 +118,7 @@ jobs:
           -X POST \
           -H "Content-Type: application/json" \
           --data '{ "query": "{ countries { code name } } " }' \
-          http://127.0.0.1:4000/
+          http://$(node -p "require('ip').address()"):4000/
 
 
 
