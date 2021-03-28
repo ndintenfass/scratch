@@ -72,9 +72,9 @@ commands:
 
               console.log(server.listen(process.env.THISIP));
 
-              server.listen(process.env.THISIP).catch(err => {console.error(err)}).then(({ url }) => {
+              server.listen(process.env.THISIP).then(({ url }) => {
                 console.log("Server ready at ${url}");
-              });
+              })..catch(err => {console.error(err)});
             })();
 
             END_HEREDOC
