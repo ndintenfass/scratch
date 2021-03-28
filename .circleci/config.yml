@@ -9,7 +9,7 @@ executors:
         default: "cimg/node"
       image-tag:
         type: string
-        default: "14.16.0"
+        default: "14.16.0-browsers"
     docker:
       - image: << parameters.image-name>>:<< parameters.image-tag >>
 
@@ -106,6 +106,7 @@ jobs:
       - run: npm install apollo-server graphql @apollo/gateway
       - write-gateway-index
       - run: node -p "require('ip').address()"
+      - run: node -p "require('ip').port()"
       - run:
           command: APOLLO_KEY=$APOLLO_KEY_GATEWAY APOLLO_GRAPH_VARIANT=current THISIP=$(node -p "require('ip').address()") node index.js &
       - run: |
