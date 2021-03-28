@@ -92,7 +92,8 @@ jobs:
       - run: npm install apollo-server graphql @apollo/gateway
       - write-gateway-index
       - run:
-          command: APOLLO_KEY=$APOLLO_KEY_GATEWAY APOLLO_GRAPH_VARIANT=current node index.js &
+          command: APOLLO_KEY=$APOLLO_KEY_GATEWAY APOLLO_GRAPH_VARIANT=current node index.js & sleep 5
+          background: true
       - run: |
           curl \
           -X POST \
@@ -105,6 +106,8 @@ jobs:
           -H "Content-Type: application/json" \
           --data '{ "query": "{ countries { code name } } " }' \
           http://localhost:4000/
+
+
 
 
 orbs:
