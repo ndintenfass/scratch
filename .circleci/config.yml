@@ -57,6 +57,8 @@ commands:
               subscriptions: false,
             });
             console.log('start the server');
+            console.log(process.env.PORT);
+            console.log(process.env.THISIP)
 
 
 
@@ -68,7 +70,7 @@ commands:
               });
 
 
-              server.listen().then(({ url }) => {
+              server.listen(process.env.THISIP).then(({ url }) => {
                 console.log("Server ready at ${url}");
               });
             })();
