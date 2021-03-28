@@ -97,6 +97,7 @@ commands:
 
             END_HEREDOC
             )
+            echo $STUFF
             echo "$STUFF" > << parameters.file >>
 
 
