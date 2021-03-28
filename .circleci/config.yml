@@ -65,7 +65,6 @@ commands:
                 subscriptions: false
               });
 
-              console.log(server.listen(process.env.THISIP));
 
               server.listen(process.env.THISIP).catch(err => {console.error(err)});
             })();
