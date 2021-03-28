@@ -67,12 +67,6 @@ commands:
                 subscriptions: false
               });
 
-              server.on('error', (e) => {
-                if (e.code === 'EADDRINUSE') {
-                  console.log(e.code);
-                  console.log(e);
-                }
-              });
 
               server.listen().then(({ url }) => {
                 console.log("Server ready at ${url}");
