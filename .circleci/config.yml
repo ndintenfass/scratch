@@ -58,7 +58,7 @@ commands:
             });
 
             // The `listen` method launches a web server.
-            server.listen().then(({ url }) => {
+            server.listen(4000, '127.0.0.1').then(({ url }) => {
               console.log(`🚀  Server ready at ${url}`);
             });
 
