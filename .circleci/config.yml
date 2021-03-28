@@ -92,7 +92,7 @@ jobs:
       - run: npm install apollo-server graphql @apollo/gateway
       - write-gateway-index
       - run:
-          command: APOLLO_KEY=$APOLLO_KEY_GATEWAY APOLLO_GRAPH_VARIANT=current node index.js &
+          command: APOLLO_KEY=$APOLLO_KEY_GATEWAY APOLLO_GRAPH_VARIANT=current node index.js & && sleep 5s
       - run: |
           curl \
           -X POST \
