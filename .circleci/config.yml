@@ -60,7 +60,7 @@ jobs:
     executor: default
     steps:
       - run: npm init --yes
-      - run: npm i apollo-server@2.14.2 @apollo/federation@0.13.2 @apollo/gateway@0.13.2 esm@3.2.25 graphql@15.0.0 nodemon@2.0.2 concurrently@5.1.0 wait-on@4.0.1
+      - run: npm install apollo-server graphql @apollo/gateway
 
 orbs:
   rover:
