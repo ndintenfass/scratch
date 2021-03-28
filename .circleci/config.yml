@@ -56,10 +56,11 @@ commands:
               gateway,
               subscriptions: false,
             });
+            console.log('start the server');
 
-            // The `listen` method launches a web server.
-            server.listen(4000, '127.0.0.1').then(({ url }) => {
-              console.log(`🚀  Server ready at ${url}`);
+            // The listen method launches a web server.
+            server.listen({host: 'localhost', port: 4001, exclusive: true, readableAll: true}).then(({ url }) => {
+              console.log("Server ready at ${url}");
             });
 
             END_HEREDOC
@@ -92,8 +93,7 @@ jobs:
       - run: npm install apollo-server graphql @apollo/gateway
       - write-gateway-index
       - run:
-          command: APOLLO_KEY=$APOLLO_KEY_GATEWAY APOLLO_GRAPH_VARIANT=current node index.js & sleep 5
-          background: true
+          command: APOLLO_KEY=$APOLLO_KEY_GATEWAY APOLLO_GRAPH_VARIANT=current node index.js
       - run: |
           curl \
           -X POST \
