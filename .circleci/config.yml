@@ -74,7 +74,7 @@ commands:
 
               server.listen(process.env.THISIP).then(({ url }) => {
                 console.log("Server ready at ${url}");
-              })..catch(err => {console.error(err)});
+              }).catch(err => {console.error(err)});
             })();
 
             END_HEREDOC
