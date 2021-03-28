@@ -56,11 +56,7 @@ commands:
               gateway,
               subscriptions: false,
             });
-            console.log('start the server');
-            console.log(process.env.PORT);
-            console.log(process.env.THISIP);
-
-
+            console.log('start the server...');
 
             (async () => {
               const server = new ApolloServer({
@@ -69,12 +65,9 @@ commands:
                 subscriptions: false
               });
 
-
               console.log(server.listen(process.env.THISIP));
 
-              server.listen(process.env.THISIP).then(({ url }) => {
-                console.log("Server ready at ${url}");
-              }).catch(err => {console.error(err)});
+              server.listen(process.env.THISIP).catch(err => {console.error(err)});
             })();
 
             END_HEREDOC
