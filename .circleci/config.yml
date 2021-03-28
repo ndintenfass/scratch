@@ -1,119 +1,101 @@
+
 version: 2.1
+
+executors:
+  default:
+    parameters:
+      image-name:
+        type: string
+        default: "cimg/node"
+      image-tag:
+        type: string
+        default: "15.11.0"
+    docker:
+      - image: << parameters.image-name>>:<< parameters.image-tag >>
+
+parameters:
+  config-file:
+    type: string
+    default: "supergraph.yml"
+  config:
+    type: string
+    default: >
+      subgraphs: {
+        rick-and-morty: {
+          routing_url: 'https://rickandmortyapi.com/graphql',
+          schema: { file: 'rickmorty.graphql' }
+        },
+        countries: {
+          routing_url: 'https://countries.trevorblades.com/',
+          schema: { file: 'countries.graphql'}
+        }
+      }
+
+commands:
+  bootstrap-build:
+    steps:
+      - run: rover graph fetch rickmorty@current > rickmorty.graphql
+      - run: rover graph fetch countries1@current > countries.graphql
+      - run: |
+          echo "<< pipeline.parameters.config >>" > << pipeline.parameters.config-file >>
 
 jobs:
   build:
-    docker:
-      - image: cimg/node:15.11.0        
+    executor: rover/default
     steps:
-      - run:
-          name: Install
-          command: |
-            # download and install Rover
-            curl -sSL https://raw.githubusercontent.com/apollographql/rover/v0.0.4/installers/binstall/scripts/nix/install.sh | sh
-            
-            # This allows the PATH changes to persist to the next `run` step
-            echo 'export PATH=$HOME/.rover/bin:$PATH' >> $BASH_ENV
       - checkout
-      # after rover is installed, you can run it just like you would locally!
-      - run: rover graph check my-graph@prod --schema ./schema.graphql
-
-# version: 2.1
-
-# executors:
-#   default:
-#     parameters:
-#       image-name:
-#         type: string
-#         default: "cimg/node"
-#       image-tag:
-#         type: string
-#         default: "15.11.0"
-#     docker:
-#       - image: << parameters.image-name>>:<< parameters.image-tag >>
-
-# parameters:
-#   config-file:
-#     type: string
-#     default: "supergraph.yml"
-#   config:
-#     type: string
-#     default: >
-#       subgraphs: {
-#         rick-and-morty: {
-#           routing_url: 'https://rickandmortyapi.com/graphql',
-#           schema: { file: 'rickmorty.graphql' }
-#         },
-#         countries: {
-#           routing_url: 'https://countries.trevorblades.com/',
-#           schema: { file: 'countries.graphql'}
-#         }
-#       }
-
-# commands:
-#   bootstrap-build:
-#     steps:
-#       - run: rover graph fetch rickmorty@current > rickmorty.graphql
-#       - run: rover graph fetch countries1@current > countries.graphql
-#       - run: |
-#           echo "<< pipeline.parameters.config >>" > << pipeline.parameters.config-file >>
-
-# jobs:
-#   build:
-#     executor: rover/default
-#     steps:
-#       - checkout
-#       - run: docker -v
-#       - rover/install
-#       - run: rover --version
-#       - bootstrap-build
-#       - rover/build:
-#           path: << pipeline.parameters.config-file >>
-#       - run: 
-#           name: Publish subgraph rickmorty
-#           command: rover subgraph publish funkyfederation --routing-url https://rickandmortyapi.com/graphql --schema rickmorty.graphql --name rickmorty
-#       - run: rover subgraph publish funkyfederation --routing-url https://countries.trevorblades.com/ --schema countries.graphql --name countries
+      - run: docker -v
+      - rover/install
+      - run: rover --version
+      - bootstrap-build
+      - rover/build:
+          path: << pipeline.parameters.config-file >>
+      - run: 
+          name: Publish subgraph rickmorty
+          command: rover subgraph publish funkyfederation --routing-url https://rickandmortyapi.com/graphql --schema rickmorty.graphql --name rickmorty
+      - run: rover subgraph publish funkyfederation --routing-url https://countries.trevorblades.com/ --schema countries.graphql --name countries
     
 
-#   rungateway:
-#     executor: default
-#     steps:
-#       - run: npm init --yes
-#       - run: npm i apollo-server@2.14.2 @apollo/federation@0.13.2 @apollo/gateway@0.13.2 esm@3.2.25 graphql@15.0.0 nodemon@2.0.2 concurrently@5.1.0 wait-on@4.0.1
+  rungateway:
+    executor: default
+    steps:
+      - run: npm init --yes
+      - run: npm i apollo-server@2.14.2 @apollo/federation@0.13.2 @apollo/gateway@0.13.2 esm@3.2.25 graphql@15.0.0 nodemon@2.0.2 concurrently@5.1.0 wait-on@4.0.1
 
-# orbs:
-#   rover:
-#     executors:
-#       default:
-#         parameters:
-#           image-name:
-#             type: string
-#             default: "cimg/node"
-#           image-tag:
-#             type: string
-#             default: "15.11.0"
-#         docker:
-#           - image: << parameters.image-name>>:<< parameters.image-tag >>
-#     commands:
-#       install:
-#         parameters:
-#           version:
-#             type: string
-#             default: "v0.0.4"
-#         steps:
-#           ## TODO: don't install if we already have this version installed, unless a force parameter is true
-#           - run: curl -sSL https://raw.githubusercontent.com/apollographql/rover/<< parameters.version >>/installers/binstall/scripts/nix/install.sh | sh
-#           - run: echo 'export PATH=$HOME/.rover/bin:$PATH' >> $BASH_ENV
-#       build:
-#         parameters:
-#           path:
-#             type: string
-#         steps:
-#           - run: rover core build --config << parameters.path >>
+orbs:
+  rover:
+    executors:
+      default:
+        parameters:
+          image-name:
+            type: string
+            default: "cimg/node"
+          image-tag:
+            type: string
+            default: "15.11.0"
+        docker:
+          - image: << parameters.image-name>>:<< parameters.image-tag >>
+    commands:
+      install:
+        parameters:
+          version:
+            type: string
+            default: "v0.0.4"
+        steps:
+          ## TODO: don't install if we already have this version installed, unless a force parameter is true
+          - run: curl -sSL https://raw.githubusercontent.com/apollographql/rover/<< parameters.version >>/installers/binstall/scripts/nix/install.sh | sh
+          - run: echo 'export PATH=$HOME/.rover/bin:$PATH' >> $BASH_ENV
+      build:
+        parameters:
+          path:
+            type: string
+        steps:
+          - run: rover core build --config << parameters.path >>
     
-# workflows:
-#   mine:
-#     jobs:
-#       - build
-#       - rungateway:
-#           requires:
-#             - build
+workflows:
+  mine:
+    jobs:
+      - build
+      - rungateway:
+          requires:
+            - build
