@@ -50,15 +50,13 @@ commands:
             STUFF=$(cat \<<END_HEREDOC
             const { ApolloServer } = require('apollo-server');
             const { ApolloGateway } = require('@apollo/gateway');
-            const gateway = new ApolloGateway();
+           
             // Pass the ApolloGateway to the ApolloServer constructor
-            const server = new ApolloServer({
-              gateway,
-              subscriptions: false,
-            });
+    
             console.log('start the server...');
 
             (async () => {
+              const gateway = new ApolloGateway();
               const server = new ApolloServer({
                 gateway,
                 // Subscriptions are unsupported but planned for a future Gateway version.
