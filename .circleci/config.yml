@@ -17,6 +17,9 @@ parameters:
   config-file:
     type: string
     default: "supergraph.yml"
+  port:
+    type: integer
+    default: 4000
   config:
     type: string
     default: >
@@ -63,7 +66,7 @@ commands:
               // Subscriptions are unsupported but planned for a future Gateway version.
               subscriptions: false
             });
-            server.listen({host: process.env.THISIP, port: 4000}).then((result) => {
+            server.listen({host: process.env.THISIP, port: << pipeline.parameters.port >>}).then((result) => {
               console.log("Success", result);
             }).catch(err => {console.error(err)});
 
@@ -105,7 +108,7 @@ jobs:
           name: start gateway
       - run:
           name: wait until the gateway is ready
-          command: while ! nc -z $(node -p "require('ip').address()") 4000; do  sleep 0.1; done
+          command: while ! nc -z $(node -p "require('ip').address()") << pipeline.parameters.port >>; do  sleep 0.1; done
       - run: |
           curl \
           -X POST \
@@ -116,11 +119,8 @@ jobs:
           curl \
           -X POST \
           -H "Content-Type: application/json" \
-          --data '{ "query": "{ countries { code name } } " }' \
-          http://$(node -p "require('ip').address()"):4000/
-
-
-
+          --data '{ "query": "{ countries { code name } characters { results { name } } } " }' \
+          http://$(node -p "require('ip').address()"):<< pipeline.parameters.port >>/
 
 orbs:
   rover:
@@ -160,8 +160,3 @@ workflows:
           requires:
             - build
 
-
-            # // The listen method launches a web server.
-            # server.listen({host: 'localhost', port: 4001, exclusive: true, readableAll: true}).then(({ url }) => {
-            #   console.log("Server ready at ${url}");
-            # });            
