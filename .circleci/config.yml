@@ -63,7 +63,7 @@ commands:
               // Subscriptions are unsupported but planned for a future Gateway version.
               subscriptions: false
             });
-            server.listen(process.env.THISIP).then((result) => {
+            server.listen(listen({host: process.env.THISIP})).then((result) => {
               console.log("Success", result);
             }).catch(err => {console.error(err)});
 
