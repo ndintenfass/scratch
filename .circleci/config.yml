@@ -104,8 +104,8 @@ jobs:
           background: true
           name: start gateway
       - run: sudo apt update
-      - run: sudo apt-get install nmap -y
-      - run: nmap -v -A localhost    
+      # - run: sudo apt-get install nmap -y
+      # - run: nmap -v -A localhost    
       - run: |
           curl \
           -X POST \
