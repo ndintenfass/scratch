@@ -101,7 +101,6 @@ jobs:
       - run: npm init --yes
       - run: npm install apollo-server graphql @apollo/gateway
       - write-gateway-index
-      - run: node -p "require('ip').address()"
       - run:
           command: APOLLO_KEY=$APOLLO_KEY_GATEWAY APOLLO_GRAPH_VARIANT=current THISIP=$(node -p "require('ip').address()") node index.js
           background: true
@@ -109,18 +108,14 @@ jobs:
       - run:
           name: wait until the gateway is ready
           command: while ! nc -z $(node -p "require('ip').address()") << pipeline.parameters.port >>; do  sleep 0.1; done
-      - run: |
-          curl \
-          -X POST \
-          -H "Content-Type: application/json" \
-          --data '{ "query": "{ countries { code name } } " }' \
-          https://countries.trevorblades.com/
-      - run: |
-          curl \
-          -X POST \
-          -H "Content-Type: application/json" \
-          --data '{ "query": "{ continents { name } characters { results { name } } } " }' \
-          http://$(node -p "require('ip').address()"):<< pipeline.parameters.port >>/
+      - run: 
+          name: query the gateway
+          command: |
+            curl \
+            -X POST \
+            -H "Content-Type: application/json" \
+            --data '{ "query": "{ continents { name } characters { results { name } } } " }' \
+            http://$(node -p "require('ip').address()"):<< pipeline.parameters.port >>/
 
 orbs:
   rover:
