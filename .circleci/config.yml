@@ -102,6 +102,7 @@ jobs:
       - run:
           command: APOLLO_KEY=$APOLLO_KEY_GATEWAY APOLLO_GRAPH_VARIANT=current THISIP=$(node -p "require('ip').address()") node index.js
           background: true
+          name: Start server
       - run: |
           curl \
           -X POST \
