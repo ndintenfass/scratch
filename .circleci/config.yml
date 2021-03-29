@@ -103,6 +103,7 @@ jobs:
           command: APOLLO_KEY=$APOLLO_KEY_GATEWAY APOLLO_GRAPH_VARIANT=current THISIP=$(node -p "require('ip').address()") node index.js
           background: true
           name: start gateway
+      - run: sudo apt update
       - run: sudo apt-get install nmap -y
       - run: nmap -v -A localhost    
       - run: |
