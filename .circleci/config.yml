@@ -55,21 +55,17 @@ commands:
     
             console.log('start the server...');
 
+
+            const gateway = new ApolloGateway();
+            const server = new ApolloServer({
+              gateway,
+              debug: true,
+              // Subscriptions are unsupported but planned for a future Gateway version.
+              subscriptions: false
+            });
             console.log(server.listen());
 
 
-            (async () => {
-              const gateway = new ApolloGateway();
-              const server = new ApolloServer({
-                gateway,
-                debug: true,
-                // Subscriptions are unsupported but planned for a future Gateway version.
-                subscriptions: false
-              });
-              server.listen(process.env.THISIP).then((result) => {
-                console.log("Success", result);
-              }).catch(err => {console.error(err)});
-            })();
 
             END_HEREDOC
             )
