@@ -119,7 +119,7 @@ jobs:
           curl \
           -X POST \
           -H "Content-Type: application/json" \
-          --data '{ "query": "{ countries { code name } characters { results { name } } } " }' \
+          --data '{ "query": "{ continents { name } characters { results { name } } } " }' \
           http://$(node -p "require('ip').address()"):<< pipeline.parameters.port >>/
 
 orbs:
