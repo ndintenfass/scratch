@@ -103,11 +103,12 @@ jobs:
           command: APOLLO_KEY=$APOLLO_KEY_GATEWAY APOLLO_GRAPH_VARIANT=current THISIP=$(node -p "require('ip').address()") node index.js
           background: true
           name: start gateway
-      - run: nc -z $(node -p "require('ip').address()") 4000
+      
       - run:
           name: wait 5 seconds for the server to be warm - a hack, but an effective one
           command: sleep 5s 
 
+      - run: nc -z $(node -p "require('ip').address()") 4000
       - run: |
           curl \
           -X POST \
