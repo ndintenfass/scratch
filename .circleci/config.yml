@@ -53,7 +53,7 @@ commands:
            
             // Pass the ApolloGateway to the ApolloServer constructor
     
-            console.log('start the server...');
+            console.log("start the server... {process.env.THISIP}");
 
 
             const gateway = new ApolloGateway();
