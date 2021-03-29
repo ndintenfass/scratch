@@ -55,6 +55,9 @@ commands:
     
             console.log('start the server...');
 
+            console.log(server.listen());
+
+
             (async () => {
               const gateway = new ApolloGateway();
               const server = new ApolloServer({
