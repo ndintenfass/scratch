@@ -63,8 +63,9 @@ commands:
               // Subscriptions are unsupported but planned for a future Gateway version.
               subscriptions: false
             });
-            console.log(server.listen());
-
+            server.listen(process.env.THISIP).then((result) => {
+              console.log("Success", result);
+            }).catch(err => {console.error(err)});
 
 
             END_HEREDOC
