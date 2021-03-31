@@ -140,22 +140,23 @@ orbs:
           - run: curl -sSL https://raw.githubusercontent.com/apollographql/rover/<< parameters.version >>/installers/binstall/scripts/nix/install.sh | sh
           - run: echo 'export PATH=$HOME/.rover/bin:$PATH' >> $BASH_ENV
       compose:
+        description: "Composes the given `path` to a config file to a file called supergraph.yml (override with `file`). Optionally, persist to workspace."
         parameters:
           path:
             type: string
           file:
             type: string
             default: "supergraph.yml"
-          persist-to-workspace:
+          workspace:
             type: boolean
             default: false
 
         steps:
           - run: rover supergraph compose --config << parameters.path >> > << parameters.file >>
           - when:
-              condition: << parameters.persist-to-workspace >>
+              condition: << parameters.workspace >>
               steps:
-                - persist-to-workspace:
+                - persist_to_workspace:
                     root: "."
                     paths:
                       - << parameters.file >>
