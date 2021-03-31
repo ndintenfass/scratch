@@ -23,7 +23,7 @@ parameters:
   graphref:
     type: string
     default: funkyfederation
-  config:
+  subgraphs:
     type: string
     default: >
       subgraphs: {
@@ -43,7 +43,7 @@ commands:
       - run: rover graph fetch rickmorty@current > rickmorty.graphql
       - run: rover graph fetch countries1@current > countries.graphql
       - run: |
-          echo "<< pipeline.parameters.config >>" > << pipeline.parameters.config-file >>
+          echo "<< pipeline.parameters.subgraphs >>" > << pipeline.parameters.config-file >>
 
   write-gateway-index:
     parameters:
