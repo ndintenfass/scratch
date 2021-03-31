@@ -84,7 +84,20 @@ commands:
             )
             echo "$STUFF"
             echo "$STUFF" > << parameters.file >>
-
+  
+  query-gateway:
+    steps:
+      - run:
+          name: wait until the gateway is ready
+          command: while ! nc -z $(node -p "require('ip').address()") << pipeline.parameters.port >>; do  sleep 0.1; done
+      - run: 
+          name: query the gateway
+          command: |
+            curl \
+            -X POST \
+            -H "Content-Type: application/json" \
+            --data '{ "query": "{ continents { name } characters { results { name } } } " }' \
+            http://$(node -p "require('ip').address()"):<< pipeline.parameters.port >>/
 
 
 jobs:
@@ -116,8 +129,14 @@ jobs:
       - run: npm init --yes
       - run: npm install apollo-server graphql
       - run: npm i https://7710-252760990-gh.circle-artifacts.com/0/storage/%40apollo/gateway/gateway-0.24.4.tgz
-
-  
+      - write-gateway-index:
+          use-supergraph: true
+      - run:
+          command: THISIP=$(node -p "require('ip').address()") node index.js
+          background: true
+          name: start gateway
+      - query-gateway
+ 
   run-gateway-managed-federation:
     executor: default
     steps:
@@ -128,17 +147,7 @@ jobs:
           command: APOLLO_KEY=$APOLLO_KEY_GATEWAY APOLLO_GRAPH_VARIANT=current THISIP=$(node -p "require('ip').address()") node index.js
           background: true
           name: start gateway
-      - run:
-          name: wait until the gateway is ready
-          command: while ! nc -z $(node -p "require('ip').address()") << pipeline.parameters.port >>; do  sleep 0.1; done
-      - run: 
-          name: query the gateway
-          command: |
-            curl \
-            -X POST \
-            -H "Content-Type: application/json" \
-            --data '{ "query": "{ continents { name } characters { results { name } } } " }' \
-            http://$(node -p "require('ip').address()"):<< pipeline.parameters.port >>/
+      - query-gateway
 
 
 
