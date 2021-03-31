@@ -165,8 +165,8 @@ orbs:
 workflows:
   mine:
     jobs:
-      - setup
+      - setup-supergraph
       - rungateway:
           requires:
-            - setup
+            - setup-supergraph
 
