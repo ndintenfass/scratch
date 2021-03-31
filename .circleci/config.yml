@@ -29,6 +29,7 @@ jobs:
     executor: rover/default
     steps:
       - rover/install
+      - run: rover update check
       - run: rover graph introspect https://rickandmortyapi.com/graphql | rover graph publish rickmorty@current --schema -
       - run: rover graph introspect https://countries.trevorblades.com/ | rover graph publish countries1@current --schema -
 
@@ -36,6 +37,7 @@ jobs:
     executor: rover/default
     steps:
       - rover/install
+      - run: rover update check
       # - run: rover config whoami
       - run: rover graph fetch rickmorty@current > rickmorty.graphql
       - run: rover graph fetch countries1@current > countries.graphql
@@ -65,6 +67,7 @@ jobs:
     executor: rover/default
     steps:
       - rover/install
+      - run: rover update check
       # - run: rover config whoami
       - run: rover graph fetch rickmorty@current > rickmorty.graphql
       - run: rover graph fetch countries1@current > countries.graphql
