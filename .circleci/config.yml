@@ -93,8 +93,13 @@ jobs:
           name: Publish subgraph countries
           command: rover subgraph publish << pipeline.parameters.graphref >> --routing-url https://countries.trevorblades.com/ --schema countries.graphql --name countries
     
-
-  rungateway-managed-federation:
+  run-gateway-local-supergraph:
+    executor: default
+    steps:
+      - attach_workspace:
+          at: "."
+  
+  run-gateway-managed-federation:
     executor: default
     steps:
       - run: npm init --yes
@@ -176,7 +181,10 @@ workflows:
   mine:
     jobs:
       - setup-supergraph
-      - rungateway-managed-federation:
+      - run-gateway-managed-federation:
+          requires:
+            - setup-supergraph
+      - run-gateway-local-supergraph:
           requires:
             - setup-supergraph
 
