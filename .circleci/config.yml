@@ -90,7 +90,7 @@ commands:
     steps:
       - run:
           name: wait until the gateway is ready
-          command: while ! nc -z $(node -p "require('ip').address()") << pipeline.parameters.port >>; do sleep 0.1; awk '{print $1}' /proc/uptime ; done
+          command: while ! nc -z $(node -p "require('ip').address()") << pipeline.parameters.port >>; do sleep 0.1 ; done
       - run: 
           name: query the gateway
           command: |
@@ -135,7 +135,7 @@ jobs:
       - write-gateway-index:
           use-supergraph: true
       - run:
-          command: APOLLO_KEY=$APOLLO_KEY_GATEWAY APOLLO_GRAPH_VARIANT=current THISIP=$(node -p "require('ip').address()") node index.js
+          command: APOLLO_KEY=nothing APOLLO_GRAPH_VARIANT=current THISIP=$(node -p "require('ip').address()") node index.js
           background: true
           name: start gateway
       - query-gateway
