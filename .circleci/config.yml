@@ -22,7 +22,7 @@ parameters:
   port:
     type: integer
     default: 4000
-  graphref:
+  federated-graphref:
     type: string
     default: funkyfederation
   subgraphs:
@@ -95,6 +95,13 @@ commands:
 
 
 jobs:
+  retrieve-and-publish:
+    executor: rover/default
+    steps:
+      - rover/install
+      - run: rover graph instrospect https://rickandmortyapi.com/graphql | rover graph publish - rickmorty@current
+      - run: rover graph instrospect https://countries.trevorblades.com/ | rover graph publish - countries1@current
+
   setup-supergraph:
     executor: rover/default
     steps:
@@ -111,10 +118,10 @@ jobs:
 
       - run: 
           name: Publish subgraph rickmorty
-          command: rover subgraph publish << pipeline.parameters.graphref >> --routing-url https://rickandmortyapi.com/graphql --schema rickmorty.graphql --name rickmorty
+          command: rover subgraph publish << pipeline.parameters.federated-graphref >> --routing-url https://rickandmortyapi.com/graphql --schema rickmorty.graphql --name rickmorty
       - run:
           name: Publish subgraph countries
-          command: rover subgraph publish << pipeline.parameters.graphref >> --routing-url https://countries.trevorblades.com/ --schema countries.graphql --name countries
+          command: rover subgraph publish << pipeline.parameters.federated-graphref >> --routing-url https://countries.trevorblades.com/ --schema countries.graphql --name countries
     
   run-gateway-local-supergraph:
     executor: default
@@ -209,7 +216,10 @@ orbs:
 workflows:
   mine:
     jobs:
-      - setup-supergraph
+      - retrieve-and-publish
+      - setup-supergraph:
+          requires:
+            - retrieve-and-publish
       - run-gateway-managed-federation:
           requires:
             - setup-supergraph
