@@ -14,9 +14,12 @@ executors:
       - image: << parameters.image-name>>:<< parameters.image-tag >>
 
 parameters:
-  config-file:
+  subgraphs-file:
     type: string
     default: "subgraphs.yml"
+  supergraph-file:
+    type: string
+    default: supergraphs.yml
   port:
     type: integer
     default: 4000
@@ -43,7 +46,7 @@ commands:
       - run: rover graph fetch rickmorty@current > rickmorty.graphql
       - run: rover graph fetch countries1@current > countries.graphql
       - run: |
-          echo "<< pipeline.parameters.subgraphs >>" > << pipeline.parameters.config-file >>
+          echo "<< pipeline.parameters.subgraphs >>" > << pipeline.parameters.subgraphs-file >>
 
   write-gateway-index:
     parameters:
@@ -83,7 +86,8 @@ jobs:
       - run: rover --version
       - fetch-schema
       - rover/compose:
-          config: << pipeline.parameters.config-file >>
+          config: << pipeline.parameters.subgraphs-file >>
+          file: << pipeline.parameters.supergraph-file >>
           workspace: true
 
       - run: 
@@ -98,6 +102,12 @@ jobs:
     steps:
       - attach_workspace:
           at: "."
+      - run:
+          command: cat << pipeline.parameters.supergraph-file >>
+      - run: npm init --yes
+      - run: npm install apollo-server graphql
+      - run: npm i https://7710-252760990-gh.circle-artifacts.com/0/storage/%40apollo/gateway/gateway-0.24.4.tgz
+      
   
   run-gateway-managed-federation:
     executor: default
@@ -120,6 +130,10 @@ jobs:
             -H "Content-Type: application/json" \
             --data '{ "query": "{ continents { name } characters { results { name } } } " }' \
             http://$(node -p "require('ip').address()"):<< pipeline.parameters.port >>/
+
+
+
+
 
 orbs:
   rover:
