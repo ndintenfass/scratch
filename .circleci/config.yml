@@ -44,8 +44,8 @@ jobs:
     executor: rover/default
     steps:
       - rover/install
-      - run: rover graph instrospect https://rickandmortyapi.com/graphql | rover graph publish - rickmorty@current
-      - run: rover graph instrospect https://countries.trevorblades.com/ | rover graph publish - countries1@current
+      - run: rover graph introspect https://rickandmortyapi.com/graphql | rover graph publish rickmorty@current --schema -
+      - run: rover graph introspect https://countries.trevorblades.com/ | rover graph publish countries1@current --schema -
 
   setup-supergraph:
     executor: rover/default
