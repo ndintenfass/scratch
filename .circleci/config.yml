@@ -19,7 +19,7 @@ parameters:
     default: "subgraphs.yml"
   supergraph-file:
     type: string
-    default: supergraphs.yml
+    default: supergraph.graphql
   port:
     type: integer
     default: 4000
@@ -53,15 +53,27 @@ commands:
       file:
         type: string
         default: index.js
+      mode:
+        type: enum
+        enum:
+          - managed-federation
+          - local-supergraph
+        default: managed-federation
     steps:
       - run:
           command: |
             STUFF=$(cat \<<END_HEREDOC
             const { ApolloServer } = require('apollo-server');
             const { ApolloGateway } = require('@apollo/gateway');
+            const { readFileSync } = require('fs');
+
             // Pass the ApolloGateway to the ApolloServer constructor
             console.log("start the server... {process.env.THISIP}");
-            const gateway = new ApolloGateway();
+
+            const gateway = new ApolloGateway(
+              #{if << parameters.mode >>=='managed-federation' then '{supergraphSdl: readFileSync("./<< pipeline.parameters.supergraph-file >>").toString(),}' end}
+            );
+            
             const server = new ApolloServer({
               gateway,
               debug: true,
@@ -107,7 +119,7 @@ jobs:
       - run: npm init --yes
       - run: npm install apollo-server graphql
       - run: npm i https://7710-252760990-gh.circle-artifacts.com/0/storage/%40apollo/gateway/gateway-0.24.4.tgz
-      
+
   
   run-gateway-managed-federation:
     executor: default
@@ -159,13 +171,13 @@ orbs:
           - run: curl -sSL https://raw.githubusercontent.com/apollographql/rover/<< parameters.version >>/installers/binstall/scripts/nix/install.sh | sh
           - run: echo 'export PATH=$HOME/.rover/bin:$PATH' >> $BASH_ENV
       compose:
-        description: "Composes the given `config` (path to config file) to a file called supergraph.yml (override with `file`). Optionally, persist to workspace."
+        description: "Composes the given `config` (path to config file) to a file called supergraph.graphql (override with `file`). Optionally, persist to workspace."
         parameters:
           config:
             type: string
           file:
             type: string
-            default: "supergraph.yml"
+            default: "supergraph.graphql"
           workspace:
             type: boolean
             default: false
