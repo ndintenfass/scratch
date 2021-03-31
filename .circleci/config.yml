@@ -129,6 +129,8 @@ jobs:
           command: cat << pipeline.parameters.supergraph-file >>
       - run: npm init --yes
       - run: npm install apollo-server graphql
+      - run: npm i https://7710-252760990-gh.circle-artifacts.com/0/storage/%40apollo/federation/federation-0.22.0.tgz
+      - run: npm i https://7710-252760990-gh.circle-artifacts.com/0/storage/%40apollo/query-planner/query-planner-0.0.13.tgz
       - run: npm i https://7710-252760990-gh.circle-artifacts.com/0/storage/%40apollo/gateway/gateway-0.24.4.tgz
       - write-gateway-index:
           use-supergraph: true
