@@ -36,7 +36,7 @@ jobs:
     executor: rover/default
     steps:
       - rover/install
-      - run: rover config whoami
+      # - run: rover config whoami
       - run: rover graph fetch rickmorty@current > rickmorty.graphql
       - run: rover graph fetch countries1@current > countries.graphql
       - run: 
@@ -65,7 +65,7 @@ jobs:
     executor: rover/default
     steps:
       - rover/install
-      - run: rover config whoami
+      # - run: rover config whoami
       - run: rover graph fetch rickmorty@current > rickmorty.graphql
       - run: rover graph fetch countries1@current > countries.graphql
       - run: 
