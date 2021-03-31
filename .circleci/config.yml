@@ -126,7 +126,7 @@ commands:
         default: false
     steps:
       - run:
-          name: write the gateway startup code to << parameters.file >>
+          name: "write the gateway startup code to << parameters.file >>; user-supergraph: << parameters.use-supergraph >>"
           command: |
             STUFF=$(cat \<<END_HEREDOC
             const { ApolloServer } = require('apollo-server');
