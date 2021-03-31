@@ -90,7 +90,7 @@ commands:
     steps:
       - run:
           name: wait until the gateway is ready
-          command: START=$(date) while ! nc -z $(node -p "require('ip').address()") << pipeline.parameters.port >>; do sleep 0.1 echo $START ; done
+          command: while ! nc -z $(node -p "require('ip').address()") << pipeline.parameters.port >>; do sleep 0.1; awk '{print $1}' /proc/uptime ; done
       - run: 
           name: query the gateway
           command: |
