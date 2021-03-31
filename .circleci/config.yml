@@ -167,7 +167,7 @@ workflows:
   mine:
     jobs:
       - setup-supergraph
-      - rungateway:
+      - rungateway-managed-federation:
           requires:
             - setup-supergraph
 
