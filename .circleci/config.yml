@@ -165,7 +165,7 @@ orbs:
           # - run: rover supergraph compose --config << parameters.path >>
           - when:
               condition:
-                eq:
+                equal:
                   - << parameters.config >>
                   - << parameters.file >>
               steps:
