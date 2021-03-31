@@ -82,7 +82,7 @@ jobs:
       - rover/install
       - run: rover --version
       - fetch-schema
-      - rover/build:
+      - rover/compose:
           path: << pipeline.parameters.config-file >>
           persist-to-workspace: true
 
