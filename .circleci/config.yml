@@ -58,6 +58,7 @@ commands:
         default: false
     steps:
       - run:
+          name: Write the gateway startup code to << parameteres.file >>
           command: |
             STUFF=$(cat \<<END_HEREDOC
             const { ApolloServer } = require('apollo-server');
