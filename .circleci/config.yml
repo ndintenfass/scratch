@@ -53,12 +53,9 @@ commands:
       file:
         type: string
         default: index.js
-      mode:
-        type: enum
-        enum:
-          - managed-federation
-          - local-supergraph
-        default: managed-federation
+      use-supergraph:
+        type: boolean
+        default: false
     steps:
       - run:
           command: |
@@ -71,7 +68,7 @@ commands:
             console.log("start the server... {process.env.THISIP}");
 
             const gateway = new ApolloGateway(
-              #{if << parameters.mode >>=='managed-federation' then '{supergraphSdl: readFileSync("./<< pipeline.parameters.supergraph-file >>").toString(),}' end}
+              <<# parameters.use-supergraph >>{supergraphSdl: readFileSync("./<< pipeline.parameters.supergraph-file >>").toString(),}<</ parameters.use-supergraph >>
             );
             
             const server = new ApolloServer({
