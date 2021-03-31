@@ -182,8 +182,11 @@ orbs:
             default: "v0.0.5"
         steps:
           ## TODO: don't install if we already have this version installed, unless a force parameter is true
-          - run: curl -sSL https://raw.githubusercontent.com/apollographql/rover/<< parameters.version >>/installers/binstall/scripts/nix/install.sh | sh
-          - run: echo 'export PATH=$HOME/.rover/bin:$PATH' >> $BASH_ENV
+          - run:
+              name: install rover version << paramester.version >>
+              command: |
+                curl -sSL https://raw.githubusercontent.com/apollographql/rover/<< parameters.version >>/installers/binstall/scripts/nix/install.sh | sh
+                echo 'export PATH=$HOME/.rover/bin:$PATH' >> $BASH_ENV
       compose:
         description: "Composes the given `config` (path to config file) to a file called supergraph.graphql (override with `file`). Optionally, persist to workspace."
         parameters:
