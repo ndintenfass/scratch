@@ -183,7 +183,7 @@ orbs:
         steps:
           ## TODO: don't install if we already have this version installed, unless a force parameter is true
           - run:
-              name: install rover version << paramester.version >>
+              name: install rover version << parameters.version >>
               command: |
                 curl -sSL https://raw.githubusercontent.com/apollographql/rover/<< parameters.version >>/installers/binstall/scripts/nix/install.sh | sh
                 echo 'export PATH=$HOME/.rover/bin:$PATH' >> $BASH_ENV
