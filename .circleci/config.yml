@@ -20,6 +20,9 @@ parameters:
   port:
     type: integer
     default: 4000
+  graphref:
+    type: string
+    default: funkyfederation
   config:
     type: string
     default: >
@@ -35,7 +38,7 @@ parameters:
       }
 
 commands:
-  bootstrap-build:
+  fetch-schema:
     steps:
       - run: rover graph fetch rickmorty@current > rickmorty.graphql
       - run: rover graph fetch countries1@current > countries.graphql
@@ -53,12 +56,8 @@ commands:
             STUFF=$(cat \<<END_HEREDOC
             const { ApolloServer } = require('apollo-server');
             const { ApolloGateway } = require('@apollo/gateway');
-           
             // Pass the ApolloGateway to the ApolloServer constructor
-    
             console.log("start the server... {process.env.THISIP}");
-
-
             const gateway = new ApolloGateway();
             const server = new ApolloServer({
               gateway,
@@ -69,8 +68,6 @@ commands:
             server.listen({host: process.env.THISIP, port: << pipeline.parameters.port >>}).then((result) => {
               console.log("Success", result);
             }).catch(err => {console.error(err)});
-
-
             END_HEREDOC
             )
             echo "$STUFF"
@@ -79,23 +76,23 @@ commands:
 
 
 jobs:
-  build:
+  setup-supergraph:
     executor: rover/default
     steps:
-      - checkout
-      - run: docker -v
       - rover/install
       - run: rover --version
-      - bootstrap-build
+      - fetch-schema
       - rover/build:
           path: << pipeline.parameters.config-file >>
+          persist-to-workspace: true
+
       - run: 
           name: Publish subgraph rickmorty
-          command: rover subgraph publish funkyfederation --routing-url https://rickandmortyapi.com/graphql --schema rickmorty.graphql --name rickmorty
-      - run: rover subgraph publish funkyfederation --routing-url https://countries.trevorblades.com/ --schema countries.graphql --name countries
+          command: rover subgraph publish << pipeline.parameteres.graphref >> --routing-url https://rickandmortyapi.com/graphql --schema rickmorty.graphql --name rickmorty
+      - run: rover subgraph publish << pipeline.parameteres.graphref >> --routing-url https://countries.trevorblades.com/ --schema countries.graphql --name countries
     
 
-  rungateway:
+  rungateway-managed-federation:
     executor: default
     steps:
       - run: npm init --yes
@@ -140,18 +137,34 @@ orbs:
           ## TODO: don't install if we already have this version installed, unless a force parameter is true
           - run: curl -sSL https://raw.githubusercontent.com/apollographql/rover/<< parameters.version >>/installers/binstall/scripts/nix/install.sh | sh
           - run: echo 'export PATH=$HOME/.rover/bin:$PATH' >> $BASH_ENV
-      build:
+      compose:
         parameters:
           path:
             type: string
+          file:
+            type: string
+            default: "supergraph.yml"
+          persist-to-workspace:
+            type: boolean
+            default: false
+
         steps:
-          - run: rover supergraph compose --config << parameters.path >>
+          - run: rover supergraph compose --config << parameters.path >> > << parameters.file >>
+          - when:
+              condition: << parameters.persist-to-workspace >>
+              steps:
+                - persist-to-workspace:
+                    root: "."
+                    paths:
+                      - << parameters.file >>
+
+
     
 workflows:
   mine:
     jobs:
-      - build
+      - setup
       - rungateway:
           requires:
-            - build
+            - setup
 
