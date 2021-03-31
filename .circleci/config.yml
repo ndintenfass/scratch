@@ -48,7 +48,7 @@ jobs:
           name: Publish subgraph countries
           command: rover subgraph publish << pipeline.parameters.federated-graphref >> --routing-url https://countries.trevorblades.com/ --schema countries.graphql --name countries
   
-  compose_supergraph:
+  compose-supergraph:
     parameters:
       config:
         type: string
@@ -241,7 +241,7 @@ workflows:
       - publish-subgraphs:
           requires:
             - retrieve-and-publish
-      - compose_supergraph:
+      - compose-supergraph:
           requires:
             - retrieve-and-publish
       - run-managed-federation:
@@ -249,5 +249,5 @@ workflows:
             - publish-subgraphs
       - run-local-supergraph:
           requires:
-            - compose_supergraph
+            - compose-supergraph
 
