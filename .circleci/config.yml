@@ -135,7 +135,7 @@ orbs:
         parameters:
           version:
             type: string
-            default: "v0.0.4"
+            default: "v0.0.5"
         steps:
           ## TODO: don't install if we already have this version installed, unless a force parameter is true
           - run: curl -sSL https://raw.githubusercontent.com/apollographql/rover/<< parameters.version >>/installers/binstall/scripts/nix/install.sh | sh
@@ -145,7 +145,7 @@ orbs:
           path:
             type: string
         steps:
-          - run: rover core build --config << parameters.path >>
+          - run: rover supergraph compose --config << parameters.path >>
     
 workflows:
   mine:
