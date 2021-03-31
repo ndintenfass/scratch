@@ -25,6 +25,11 @@ executors:
       - image: cimg/node:<< parameters.tag >>
 
 jobs:
+  compare-install-time:
+    executor: rover/default
+    steps:
+      - rover/install
+      - run: npm install -g apollo
   retrieve-and-publish:
     executor: rover/default
     steps:
@@ -241,6 +246,7 @@ workflows:
   mine:
     jobs:
       - retrieve-and-publish
+      - compare-install-time
       - publish-subgraphs:
           requires:
             - retrieve-and-publish
