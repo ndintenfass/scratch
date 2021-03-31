@@ -1,17 +1,5 @@
 version: 2.1
 
-executors:
-  default:
-    parameters:
-      image-name:
-        type: string
-        default: "cimg/node"
-      image-tag:
-        type: string
-        default: "14.16.0-browsers"
-    docker:
-      - image: << parameters.image-name>>:<< parameters.image-tag >>
-
 parameters:
   subgraphs-file:
     type: string
@@ -39,6 +27,15 @@ parameters:
         }
       }
 
+executors:
+  default:
+    parameters:
+      tag:
+        type: string
+        default: "14.16.0-browsers"
+    docker:
+      - image: cimg/node:<< parameters.tag >>
+
 jobs:
   retrieve-and-publish:
     executor: rover/default
@@ -47,7 +44,21 @@ jobs:
       - run: rover graph introspect https://rickandmortyapi.com/graphql | rover graph publish rickmorty@current --schema -
       - run: rover graph introspect https://countries.trevorblades.com/ | rover graph publish countries1@current --schema -
 
-  setup-supergraph:
+  publish-subgraphs:
+    executor: rover/default
+    steps:
+      - rover/install
+      - run: rover --version
+      - run: rover graph fetch rickmorty@current > rickmorty.graphql
+      - run: rover graph fetch countries1@current > countries.graphql
+      - run: 
+          name: Publish subgraph rickmorty
+          command: rover subgraph publish << pipeline.parameters.federated-graphref >> --routing-url https://rickandmortyapi.com/graphql --schema rickmorty.graphql --name rickmorty
+      - run:
+          name: Publish subgraph countries
+          command: rover subgraph publish << pipeline.parameters.federated-graphref >> --routing-url https://countries.trevorblades.com/ --schema countries.graphql --name countries
+  
+  compose_supergraph:
     executor: rover/default
     steps:
       - rover/install
@@ -61,13 +72,6 @@ jobs:
           file: << pipeline.parameters.supergraph-file >>
           workspace: true
 
-      - run: 
-          name: Publish subgraph rickmorty
-          command: rover subgraph publish << pipeline.parameters.federated-graphref >> --routing-url https://rickandmortyapi.com/graphql --schema rickmorty.graphql --name rickmorty
-      - run:
-          name: Publish subgraph countries
-          command: rover subgraph publish << pipeline.parameters.federated-graphref >> --routing-url https://countries.trevorblades.com/ --schema countries.graphql --name countries
-    
   run-gateway-local-supergraph:
     executor: default
     steps:
@@ -215,13 +219,16 @@ workflows:
   mine:
     jobs:
       - retrieve-and-publish
-      - setup-supergraph:
+      - publish-subgraphs:
+          requires:
+            - retrieve-and-publish
+      - compose_supergraph:
           requires:
             - retrieve-and-publish
       - run-gateway-managed-federation:
           requires:
-            - setup-supergraph
+            - publish-subgraphs
       - run-gateway-local-supergraph:
           requires:
-            - setup-supergraph
+            - compose_supergraph
 
