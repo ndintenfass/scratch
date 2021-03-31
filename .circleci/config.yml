@@ -170,7 +170,7 @@ orbs:
                   - << parameters.file >>
               steps:
                 - run:
-                    name: ERROR: config and file parameters cannot be the same
+                    name: "ERROR: config and file parameters cannot be the same"
                     command: echo "Sorry, the config and destination file can't be the same. (<< parameters.config >>)" && exit 1
           - run: rover supergraph compose --config << parameters.config >> > << parameters.file >>
           # - when:
