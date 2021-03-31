@@ -56,6 +56,8 @@ commands:
             const { ApolloServer } = require('apollo-server');
             const { ApolloGateway } = require('@apollo/gateway');
             const { readFileSync } = require('fs');
+            import { ApolloServerPluginUsageReportingDisabled } from "apollo-server-core";
+
 
             // Pass the ApolloGateway to the ApolloServer constructor
             console.log("start the server... {process.env.THISIP}");
@@ -68,7 +70,8 @@ commands:
               gateway,
               debug: true,
               // Subscriptions are unsupported but planned for a future Gateway version.
-              subscriptions: false
+              subscriptions: false,
+              plugins: [ApolloServerPluginUsageReportingDisabled()],
             });
             server.listen({host: process.env.THISIP, port: << pipeline.parameters.port >>}).then((result) => {
               console.log("Success", result);
