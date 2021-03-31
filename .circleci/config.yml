@@ -77,7 +77,7 @@ jobs:
           file: << pipeline.parameters.supergraph-file >>
           workspace: true
 
-  run-gateway-local-supergraph:
+  run-local-supergraph:
     executor: default
     steps:
       - attach_workspace:
@@ -100,7 +100,7 @@ jobs:
           name: start gateway with a supergraph
       - query-gateway
  
-  run-gateway-managed-federation:
+  run-managed-federation:
     executor: default
     steps:
       - run:
@@ -167,7 +167,11 @@ commands:
             -X POST \
             -H "Content-Type: application/json" \
             --data '{ "query": "{ continents { name } characters { results { name } } } " }' \
-            http://$(node -p "require('ip').address()"):<< pipeline.parameters.port >>/
+            http://$(node -p "require('ip').address()"):<< pipeline.parameters.port >>/ \
+            -o result.json
+      - run:
+          name: show the resulting query
+          command: jq . result.json
 
 orbs:
   rover:
@@ -236,10 +240,10 @@ workflows:
       - compose_supergraph:
           requires:
             - retrieve-and-publish
-      - run-gateway-managed-federation:
+      - run-managed-federation:
           requires:
             - publish-subgraphs
-      - run-gateway-local-supergraph:
+      - run-local-supergraph:
           requires:
             - compose_supergraph
 
