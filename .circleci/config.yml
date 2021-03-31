@@ -40,7 +40,6 @@ parameters:
       }
 
 commands:
-
   write-gateway-index:
     parameters:
       file:
@@ -82,8 +81,9 @@ commands:
   query-gateway:
     steps:
       - run:
-          name: wait until the gateway is ready
+          name: wait up to a minute until the gateway is ready
           command: while ! nc -z $(node -p "require('ip').address()") << pipeline.parameters.port >>; do sleep 0.1 ; done
+          no_output_timeout: 30s
       - run: 
           name: query the gateway
           command: |
