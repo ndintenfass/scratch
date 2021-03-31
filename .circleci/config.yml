@@ -162,8 +162,8 @@ orbs:
             default: false
 
         steps:
-          - run: rover supergraph compose --config << parameters.path >>
-          # - run: rover supergraph compose --config << parameters.path >> > << parameters.file >>
+          # - run: rover supergraph compose --config << parameters.path >>
+          - run: rover supergraph compose --config << parameters.path >> > << parameters.file >>
           # - when:
           #     condition: << parameters.workspace >>
           #     steps:
