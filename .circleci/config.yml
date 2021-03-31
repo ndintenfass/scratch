@@ -16,7 +16,7 @@ executors:
 parameters:
   config-file:
     type: string
-    default: "supergraph.yml"
+    default: "subgraphs.yml"
   port:
     type: integer
     default: 4000
