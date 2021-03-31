@@ -88,10 +88,10 @@ jobs:
 
       - run: 
           name: Publish subgraph rickmorty
-          command: rover subgraph publish << pipeline.parameteres.graphref >> --routing-url https://rickandmortyapi.com/graphql --schema rickmorty.graphql --name rickmorty
+          command: rover subgraph publish << pipeline.parameters.graphref >> --routing-url https://rickandmortyapi.com/graphql --schema rickmorty.graphql --name rickmorty
       - run:
           name: Publish subgraph countries
-          command: rover subgraph publish << pipeline.parameteres.graphref >> --routing-url https://countries.trevorblades.com/ --schema countries.graphql --name countries
+          command: rover subgraph publish << pipeline.parameters.graphref >> --routing-url https://countries.trevorblades.com/ --schema countries.graphql --name countries
     
 
   rungateway-managed-federation:
