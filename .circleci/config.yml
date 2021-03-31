@@ -98,7 +98,7 @@ commands:
             -X POST \
             -H "Content-Type: application/json" \
             --data '{ "query": "{ continents { name } characters { results { name } } } " }' \
-            http://$(node -p "require('ip').address()"):<< pipeline.parameters.port >>/
+            http://$(node -p "require('ip').address()"):<< pipeline.parameters.port >>/ | | python -m json.tool
 
 
 jobs:
