@@ -93,7 +93,7 @@ jobs:
       - run: rover --version
       - fetch-schema
       - rover/compose:
-          path: << pipeline.parameters.config-file >>
+          config: << pipeline.parameters.config-file >>
           workspace: true
 
       - run: 
@@ -152,7 +152,7 @@ orbs:
       compose:
         description: "Composes the given `path` to a config file to a file called supergraph.yml (override with `file`). Optionally, persist to workspace."
         parameters:
-          path:
+          config:
             type: string
           file:
             type: string
@@ -163,7 +163,16 @@ orbs:
 
         steps:
           # - run: rover supergraph compose --config << parameters.path >>
-          - run: rover supergraph compose --config << parameters.path >> > << parameters.file >>
+          - when:
+              condition:
+                eq:
+                  - << parameters.config >>
+                  - << parameters.file >>
+              steps:
+                - run:
+                    name: ERROR: config and file parameters cannot be the same
+                    command: echo "Sorry, the config and destination file can't be the same. (<< parameters.config >>)" && exit 1
+          - run: rover supergraph compose --config << parameters.config >> > << parameters.file >>
           # - when:
           #     condition: << parameters.workspace >>
           #     steps:
