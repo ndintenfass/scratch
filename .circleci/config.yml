@@ -1,4 +1,3 @@
-
 version: 2.1
 
 executors:
@@ -41,12 +40,6 @@ parameters:
       }
 
 commands:
-  fetch-schema:
-    steps:
-      - run: rover graph fetch rickmorty@current > rickmorty.graphql
-      - run: rover graph fetch countries1@current > countries.graphql
-      - run: |
-          echo "<< pipeline.parameters.subgraphs >>" > << pipeline.parameters.subgraphs-file >>
 
   write-gateway-index:
     parameters:
@@ -107,7 +100,10 @@ jobs:
     steps:
       - rover/install
       - run: rover --version
-      - fetch-schema
+      - run: rover graph fetch rickmorty@current > rickmorty.graphql
+      - run: rover graph fetch countries1@current > countries.graphql
+      - run: |
+          echo "<< pipeline.parameters.subgraphs >>" > << pipeline.parameters.subgraphs-file >>
       - rover/compose:
           config: << pipeline.parameters.subgraphs-file >>
           file: << pipeline.parameters.supergraph-file >>
@@ -154,9 +150,6 @@ jobs:
           background: true
           name: start gateway
       - query-gateway
-
-
-
 
 
 orbs:
@@ -213,8 +206,6 @@ orbs:
                     paths:
                       - << parameters.file >>
 
-
-    
 workflows:
   mine:
     jobs:
