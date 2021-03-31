@@ -68,8 +68,10 @@ jobs:
       - run: rover config whoami
       - run: rover graph fetch rickmorty@current > rickmorty.graphql
       - run: rover graph fetch countries1@current > countries.graphql
-      - run: |
-          echo "<< parameters.config >>" > << pipeline.parameters.subgraphs-file >>
+      - run: 
+          name: write config file to << pipeline.parameters.subgraphs-file >>
+          command: |
+            echo "<< parameters.config >>" > << pipeline.parameters.subgraphs-file >>
       - rover/compose:
           config: << pipeline.parameters.subgraphs-file >>
           file: << pipeline.parameters.supergraph-file >>
@@ -101,8 +103,11 @@ jobs:
   run-gateway-managed-federation:
     executor: default
     steps:
-      - run: npm init --yes
-      - run: npm install apollo-server graphql @apollo/gateway
+      - run:
+          name: npm install apollo-server graphql @apollo/gateway
+          command: |
+            npm init --yes
+            npm install apollo-server graphql @apollo/gateway
       - write-gateway-index
       - run:
           command: APOLLO_KEY=$APOLLO_KEY_GATEWAY APOLLO_GRAPH_VARIANT=current THISIP=$(node -p "require('ip').address()") node index.js
@@ -121,7 +126,7 @@ commands:
         default: false
     steps:
       - run:
-          name: Write the gateway startup code to << parameters.file >>
+          name: write the gateway startup code to << parameters.file >>
           command: |
             STUFF=$(cat \<<END_HEREDOC
             const { ApolloServer } = require('apollo-server');
