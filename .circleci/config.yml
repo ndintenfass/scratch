@@ -46,7 +46,7 @@ commands:
           command: |
             STUFF=$(cat \<<END_HEREDOC
             << pipeline.parameters.config >>
-            
+
             END_HEREDOC
             )
             echo "$STUFF"
@@ -162,14 +162,15 @@ orbs:
             default: false
 
         steps:
-          - run: rover supergraph compose --config << parameters.path >> > << parameters.file >>
-          - when:
-              condition: << parameters.workspace >>
-              steps:
-                - persist_to_workspace:
-                    root: "."
-                    paths:
-                      - << parameters.file >>
+          - run: rover supergraph compose --config << parameters.path >>
+          # - run: rover supergraph compose --config << parameters.path >> > << parameters.file >>
+          # - when:
+          #     condition: << parameters.workspace >>
+          #     steps:
+          #       - persist_to_workspace:
+          #           root: "."
+          #           paths:
+          #             - << parameters.file >>
 
 
     
