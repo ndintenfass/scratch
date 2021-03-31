@@ -42,8 +42,18 @@ commands:
     steps:
       - run: rover graph fetch rickmorty@current > rickmorty.graphql
       - run: rover graph fetch countries1@current > countries.graphql
-      - run: |
-          echo "<< pipeline.parameters.config >>" > << pipeline.parameters.config-file >>
+      - run:
+          command: |
+            STUFF=$(cat \<<END_HEREDOC
+            << pipeline.parameters.config >>
+            
+            END_HEREDOC
+            )
+            echo "$STUFF"
+            echo "$STUFF" >  << pipeline.parameters.config-file >>
+
+      # - run: |
+      #     echo "<< pipeline.parameters.config >>" > << pipeline.parameters.config-file >>
 
   write-gateway-index:
     parameters:
