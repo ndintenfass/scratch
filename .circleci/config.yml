@@ -84,7 +84,7 @@ jobs:
       - fetch-schema
       - rover/compose:
           path: << pipeline.parameters.config-file >>
-          persist-to-workspace: true
+          workspace: true
 
       - run: 
           name: Publish subgraph rickmorty
