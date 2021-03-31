@@ -135,7 +135,7 @@ jobs:
       - write-gateway-index:
           use-supergraph: true
       - run:
-          command: THISIP=$(node -p "require('ip').address()") node index.js
+          command: APOLLO_KEY=$APOLLO_KEY_GATEWAY APOLLO_GRAPH_VARIANT=current THISIP=$(node -p "require('ip').address()") node index.js
           background: true
           name: start gateway
       - query-gateway
