@@ -169,6 +169,7 @@ jobs:
   run-managed-federation-uplink:
     executor: default
     steps:
+      - run: sleep 30
       - run:
           name: npm install apollo-server graphql @apollo/gateway
           command: |
