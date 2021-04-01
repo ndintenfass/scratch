@@ -33,7 +33,7 @@ orbs:
         parameters:
           version:
             type: string
-            default: "v0.0.6"
+            default: "v0.0.7"
         steps:
           ## TODO: don't install if we already have this version installed, unless a force parameter is true
           - run:
@@ -160,8 +160,6 @@ jobs:
 # npm i https://7710-252760990-gh.circle-artifacts.com/0/storage/%40apollo/federation/federation-0.22.0.tgz
 # npm i https://7710-252760990-gh.circle-artifacts.com/0/storage/%40apollo/query-planner/query-planner-0.0.13.tgz
 # npm i https://7710-252760990-gh.circle-artifacts.com/0/storage/%40apollo/gateway/gateway-0.24.4.tgz
-      - run:
-          command: sed -i 's/lib.apollo/specs.apollo/' << pipeline.parameters.supergraph-file >>
       - run:
           name: show contents of << pipeline.parameters.supergraph-file >> (in the attached workspace)
           command: cat << pipeline.parameters.supergraph-file >>
