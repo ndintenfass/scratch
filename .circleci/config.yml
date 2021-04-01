@@ -154,12 +154,7 @@ jobs:
           name: install special versions of gateway, federation, query-planner
           command: |
             npm init --yes
-            npm install apollo-server graphql
-            npm install @apollo/gateway@alpha
-
-# npm i https://7710-252760990-gh.circle-artifacts.com/0/storage/%40apollo/federation/federation-0.22.0.tgz
-# npm i https://7710-252760990-gh.circle-artifacts.com/0/storage/%40apollo/query-planner/query-planner-0.0.13.tgz
-# npm i https://7710-252760990-gh.circle-artifacts.com/0/storage/%40apollo/gateway/gateway-0.24.4.tgz
+            npm install apollo-server graphql @apollo/gateway
       - run:
           name: show contents of << pipeline.parameters.supergraph-file >> (in the attached workspace)
           command: cat << pipeline.parameters.supergraph-file >>
@@ -171,6 +166,21 @@ jobs:
           name: start gateway with a supergraph
       - query-gateway
  
+  run-managed-federation-uplink:
+    executor: default
+    steps:
+      - run:
+          name: npm install apollo-server graphql @apollo/gateway
+          command: |
+            npm init --yes
+            npm install apollo-server graphql @apollo/gateway
+      - write-gateway-index
+      - run:
+          command: APOLLO_SCHEMA_CONFIG_DELIVERY_ENDPOINT=https://uplink.api.apollographql.com/ APOLLO_KEY=$APOLLO_KEY_GATEWAY APOLLO_GRAPH_VARIANT=current THISIP=$(node -p "require('ip').address()") node index.js
+          background: true
+          name: start gateway
+      - query-gateway
+
   run-managed-federation:
     executor: default
     steps:
@@ -184,7 +194,7 @@ jobs:
           command: APOLLO_KEY=$APOLLO_KEY_GATEWAY APOLLO_GRAPH_VARIANT=current THISIP=$(node -p "require('ip').address()") node index.js
           background: true
           name: start gateway
-      - query-gateway
+      - query-gateway      
 
 commands:
   write-gateway-index:
@@ -260,6 +270,9 @@ workflows:
       - run-managed-federation:
           requires:
             - publish-subgraphs
+      - run-managed-federation-uplink:
+          requires:
+            - publish-subgraphs      
       - run-local-supergraph:
           requires:
             - compose-supergraph
