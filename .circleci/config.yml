@@ -161,7 +161,7 @@ jobs:
 # npm i https://7710-252760990-gh.circle-artifacts.com/0/storage/%40apollo/query-planner/query-planner-0.0.13.tgz
 # npm i https://7710-252760990-gh.circle-artifacts.com/0/storage/%40apollo/gateway/gateway-0.24.4.tgz
       - run:
-          command: sed -i 's/lib.apollo/specs.apollo/' filename
+          command: sed -i 's/lib.apollo/specs.apollo/' << pipeline.parameters.supergraph-file >>
       - run:
           name: show contents of << pipeline.parameters.supergraph-file >> (in the attached workspace)
           command: cat << pipeline.parameters.supergraph-file >>
