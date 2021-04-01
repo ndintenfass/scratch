@@ -14,6 +14,63 @@ parameters:
     type: string
     default: funkyfederation
 
+# Define an inline orb for rover - we don't yet have a published orb, so this will suffice
+orbs:
+  rover:
+    executors:
+      default:
+        parameters:
+          image-name:
+            type: string
+            default: "cimg/node"
+          image-tag:
+            type: string
+            default: "15.11.0"
+        docker:
+          - image: << parameters.image-name>>:<< parameters.image-tag >>
+    commands:
+      install:
+        parameters:
+          version:
+            type: string
+            default: "v0.0.6"
+        steps:
+          ## TODO: don't install if we already have this version installed, unless a force parameter is true
+          - run:
+              name: install rover version << parameters.version >>
+              command: |
+                curl -sSL https://raw.githubusercontent.com/apollographql/rover/<< parameters.version >>/installers/binstall/scripts/nix/install.sh | sh
+                echo 'export PATH=$HOME/.rover/bin:$PATH' >> $BASH_ENV
+      compose:
+        description: "Composes the given `config` (path to config file) to a file called supergraph.graphql (override with `file`). Optionally, persist to workspace."
+        parameters:
+          config:
+            type: string
+          file:
+            type: string
+            default: "supergraph.graphql"
+          workspace:
+            type: boolean
+            default: false
+
+        steps:
+          - when:
+              condition:
+                equal:
+                  - << parameters.config >>
+                  - << parameters.file >>
+              steps:
+                - run:
+                    name: "ERROR: config and file parameters cannot be the same when calling rover/compose - name: << parameters.config >>"
+                    command: echo "Sorry, the config and destination file can't be the same. (<< parameters.config >>)" && exit 1
+          - run: rover supergraph compose --config << parameters.config >> > << parameters.file >> && cat << parameters.file >>
+          - when:
+              condition: << parameters.workspace >>
+              steps:
+                - persist_to_workspace:
+                    root: "."
+                    paths:
+                      - << parameters.file >>
 
 executors:
   default:
@@ -98,9 +155,11 @@ jobs:
           command: |
             npm init --yes
             npm install apollo-server graphql
-            npm i https://7710-252760990-gh.circle-artifacts.com/0/storage/%40apollo/federation/federation-0.22.0.tgz
-            npm i https://7710-252760990-gh.circle-artifacts.com/0/storage/%40apollo/query-planner/query-planner-0.0.13.tgz
-            npm i https://7710-252760990-gh.circle-artifacts.com/0/storage/%40apollo/gateway/gateway-0.24.4.tgz
+            npm install @apollo/gateway@alpha
+
+# npm i https://7710-252760990-gh.circle-artifacts.com/0/storage/%40apollo/federation/federation-0.22.0.tgz
+# npm i https://7710-252760990-gh.circle-artifacts.com/0/storage/%40apollo/query-planner/query-planner-0.0.13.tgz
+# npm i https://7710-252760990-gh.circle-artifacts.com/0/storage/%40apollo/gateway/gateway-0.24.4.tgz
       - run:
           name: show contents of << pipeline.parameters.supergraph-file >> (in the attached workspace)
           command: cat << pipeline.parameters.supergraph-file >>
@@ -185,62 +244,7 @@ commands:
           name: show the resulting query
           command: jq . result.json
 
-orbs:
-  rover:
-    executors:
-      default:
-        parameters:
-          image-name:
-            type: string
-            default: "cimg/node"
-          image-tag:
-            type: string
-            default: "15.11.0"
-        docker:
-          - image: << parameters.image-name>>:<< parameters.image-tag >>
-    commands:
-      install:
-        parameters:
-          version:
-            type: string
-            default: "v0.0.5"
-        steps:
-          ## TODO: don't install if we already have this version installed, unless a force parameter is true
-          - run:
-              name: install rover version << parameters.version >>
-              command: |
-                curl -sSL https://raw.githubusercontent.com/apollographql/rover/<< parameters.version >>/installers/binstall/scripts/nix/install.sh | sh
-                echo 'export PATH=$HOME/.rover/bin:$PATH' >> $BASH_ENV
-      compose:
-        description: "Composes the given `config` (path to config file) to a file called supergraph.graphql (override with `file`). Optionally, persist to workspace."
-        parameters:
-          config:
-            type: string
-          file:
-            type: string
-            default: "supergraph.graphql"
-          workspace:
-            type: boolean
-            default: false
 
-        steps:
-          - when:
-              condition:
-                equal:
-                  - << parameters.config >>
-                  - << parameters.file >>
-              steps:
-                - run:
-                    name: "ERROR: config and file parameters cannot be the same when calling rover/compose - name: << parameters.config >>"
-                    command: echo "Sorry, the config and destination file can't be the same. (<< parameters.config >>)" && exit 1
-          - run: rover supergraph compose --config << parameters.config >> > << parameters.file >> && cat << parameters.file >>
-          - when:
-              condition: << parameters.workspace >>
-              steps:
-                - persist_to_workspace:
-                    root: "."
-                    paths:
-                      - << parameters.file >>
 
 workflows:
   mine:
