@@ -95,14 +95,11 @@ jobs:
       - introspect-and-append-contact:
           url: https://rickandmortyapi.com/graphql
           graphref: rickmorty@current
-          contact-description: $(date -I)
-      # - run: >
-      #     rover graph introspect https://rickandmortyapi.com/graphql | 
-      #     (echo 'directive @contact(name: String! url: String description: String) on SCHEMA' && cat) | 
-      #     (echo 'schema @contact(name: "My Team", url: "https://apollo.dev", description: "Update Now") {query: Query}' && cat) | 
-      #     rover graph publish rickmorty@current --schema -
-      - run: rover graph introspect https://countries.trevorblades.com/ | rover graph publish countries1@current --schema -
-
+          contact-description: $(date -Is)
+      - introspect-and-append-contact:
+          url: https://countries.trevorblades.com/
+          graphref: countries1@current
+          contact-description: $(date -Is)
 
   publish-subgraphs:
     executor: rover/default
