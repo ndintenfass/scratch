@@ -92,8 +92,17 @@ jobs:
     steps:
       - rover/install
       - run: rover update check
-      - run: rover graph introspect https://rickandmortyapi.com/graphql | rover graph publish rickmorty@current --schema -
+      - introspect-and-append-contact:
+          url: https://rickandmortyapi.com/graphql
+          graphref: rickmorty@current
+          contact-description: $(date -I)
+      # - run: >
+      #     rover graph introspect https://rickandmortyapi.com/graphql | 
+      #     (echo 'directive @contact(name: String! url: String description: String) on SCHEMA' && cat) | 
+      #     (echo 'schema @contact(name: "My Team", url: "https://apollo.dev", description: "Update Now") {query: Query}' && cat) | 
+      #     rover graph publish rickmorty@current --schema -
       - run: rover graph introspect https://countries.trevorblades.com/ | rover graph publish countries1@current --schema -
+
 
   publish-subgraphs:
     executor: rover/default
@@ -197,6 +206,28 @@ jobs:
       - query-gateway      
 
 commands:
+  introspect-and-append-contact:
+    parameters:
+      url:
+        type: string
+      graphref:
+        type: string
+      contact-name:
+        type: string
+        default: "Engineering"
+      contact-url:
+        type: string
+        default: ""
+      contact-description:
+        type: string
+        default: ""
+
+    steps:
+      - run: >
+          rover graph introspect << parameters.url >> | 
+          (echo 'directive @contact(name: String! url: String description: String) on SCHEMA' && cat) | 
+          (echo 'schema @contact(name: "<< parameters.contact-name >>", url: "<< parameters.contact-url >>", description: "<< parameters.description >>") {query: Query}' && cat) | 
+          rover graph publish << parameters.graphref >> --schema -
   write-gateway-index:
     parameters:
       file:
