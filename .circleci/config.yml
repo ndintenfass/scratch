@@ -158,10 +158,9 @@ jobs:
       - run:
           name: show contents of << pipeline.parameters.supergraph-file >> (in the attached workspace)
           command: cat << pipeline.parameters.supergraph-file >>
-      - write-gateway-index:
-          use-supergraph: true
+      - write-gateway-index
       - run:
-          command: APOLLO_KEY=$APOLLO_KEY_GATEWAY APOLLO_GRAPH_VARIANT=current THISIP=$(node -p "require('ip').address()") node index.js
+          command: APOLLO_KEY=$APOLLO_KEY_GATEWAY APOLLO_GRAPH_VARIANT=current THISIP=$(node -p "require('ip').address()") node index.js local
           background: true
           name: start gateway with a supergraph
       - query-gateway
@@ -203,24 +202,32 @@ commands:
       file:
         type: string
         default: index.js
-      use-supergraph:
-        type: boolean
-        default: false
     steps:
       - run:
-          name: "write the gateway startup code to << parameters.file >>; use-supergraph: << parameters.use-supergraph >>"
+          name: "write the gateway startup code to << parameters.file >> (pass 'local' as an argument to use a local supergraph file)"
           command: |
             STUFF=$(cat \<<END_HEREDOC
             const { ApolloServer } = require('apollo-server');
             const { ApolloGateway } = require('@apollo/gateway');
             const { readFileSync } = require('fs');
 
+            const args = process.argv.slice(2);
+            const mode = args[0]
+
+            console.log(`Starting Apollo Gateway in ${mode} mode ...`);
+
+            const config = {};
+            if (mode === "local"){
+              const supergraph= "./<< pipeline.parameters.supergraph-file >>"
+              console.log(`Using local: ${supergraph}`)
+              config['supergraphSdl'] = readFileSync(supergraph).toString();
+            }
+
+
             // Pass the ApolloGateway to the ApolloServer constructor
             console.log("start the server... {process.env.THISIP}");
 
-            const gateway = new ApolloGateway(
-              <<# parameters.use-supergraph >>{supergraphSdl: readFileSync("./<< pipeline.parameters.supergraph-file >>").toString(),}<</ parameters.use-supergraph >>
-            );
+            const gateway = new ApolloGateway(config);
             
             const server = new ApolloServer({
               gateway,
