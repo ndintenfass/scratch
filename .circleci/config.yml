@@ -226,7 +226,7 @@ commands:
       - run: >
           rover graph introspect << parameters.url >> | 
           (echo 'directive @contact(name: String! url: String description: String) on SCHEMA' && cat) | 
-          (echo 'schema @contact(name: "<< parameters.contact-name >>", url: "<< parameters.contact-url >>", description: "<< parameters.description >>") {query: Query}' && cat) | 
+          (echo 'schema @contact(name: "<< parameters.contact-name >>", url: "<< parameters.contact-url >>", description: "<< parameters.contact-description >>") {query: Query}' && cat) | 
           rover graph publish << parameters.graphref >> --schema -
   write-gateway-index:
     parameters:
