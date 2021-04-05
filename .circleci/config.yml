@@ -92,6 +92,7 @@ jobs:
     steps:
       - rover/install
       - run: rover update check
+      ## Use dynamic date to force recomposition.
       - introspect-and-append-contact:
           url: https://rickandmortyapi.com/graphql
           graphref: rickmorty@current
