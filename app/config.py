@@ -56,4 +56,17 @@ def load_admin_config(path: str | None = None) -> AdminConfig:
             )
 
     raw["llm_clouds"] = typed_clouds
+
+    # Allow DEFAULT_LLM_CLOUD env var to override the default cloud.
+    # This is how Render (and other cloud environments) select a cloud
+    # without editing admin_config.yaml (which defaults to local Ollama).
+    override = os.environ.get("DEFAULT_LLM_CLOUD")
+    if override:
+        if override not in typed_clouds:
+            raise ValueError(
+                f"DEFAULT_LLM_CLOUD='{override}' is not defined in admin_config.yaml. "
+                f"Available clouds: {list(typed_clouds.keys())}"
+            )
+        raw.setdefault("defaults", {})["llm_cloud"] = override
+
     return AdminConfig(**raw)

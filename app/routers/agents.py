@@ -2,6 +2,7 @@
 FastAPI routes for the Declarative Agent Framework API.
 
 Routes:
+  GET    /agents                              List all deployed agents
   POST   /agents                              Create agent from inline spec
   POST   /agents/from-package                 Create agent from package directory
   GET    /agents/{agent_id}                   Describe an agent
@@ -75,6 +76,24 @@ async def _create_agent_from_spec(
 # ---------------------------------------------------------------------------
 # Agent lifecycle
 # ---------------------------------------------------------------------------
+
+@router.get("/agents", response_model=list[AgentResponse])
+async def list_agents(request: Request):
+    """List all deployed agents."""
+    records = await _get_store(request).list_agents()
+    return [
+        AgentResponse(
+            agent_id=r.agent_id,
+            name=r.spec.name,
+            type=r.spec.type,
+            status=r.status,
+            created_at=r.created_at,
+            llm_cloud=r.spec.llm_cloud,
+            description=r.spec.description,
+        )
+        for r in records
+    ]
+
 
 @router.post("/agents", response_model=AgentResponse, status_code=201)
 async def create_agent(body: CreateAgentRequest, request: Request):

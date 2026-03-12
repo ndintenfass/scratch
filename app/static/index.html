@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Declarative Agent Framework</title>
+  <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #2563eb;
+      --blue-light: #dbeafe;
+      --blue-dark: #1d4ed8;
+      --green: #16a34a;
+      --green-light: #dcfce7;
+      --red: #dc2626;
+      --red-light: #fee2e2;
+      --amber: #d97706;
+      --amber-light: #fef3c7;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-400: #9ca3af;
+      --gray-600: #4b5563;
+      --gray-800: #1f2937;
+      --radius: 8px;
+      --shadow: 0 1px 3px rgba(0,0,0,.1), 0 1px 2px rgba(0,0,0,.06);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 14px;
+      color: var(--gray-800);
+      background: var(--gray-50);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: white;
+      border-bottom: 1px solid var(--gray-200);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      height: 56px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    header h1 { font-size: 16px; font-weight: 700; color: var(--gray-800); }
+    header .subtitle { font-size: 12px; color: var(--gray-400); }
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--gray-200); flex-shrink: 0;
+      transition: background .3s;
+    }
+    .status-dot.ok { background: var(--green); }
+    .status-dot.err { background: var(--red); }
+
+    /* ── Nav tabs ── */
+    nav {
+      background: white;
+      border-bottom: 1px solid var(--gray-200);
+      padding: 0 24px;
+      display: flex;
+      gap: 0;
+    }
+    nav button {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--gray-600);
+      cursor: pointer;
+      transition: color .15s, border-color .15s;
+    }
+    nav button:hover { color: var(--blue); }
+    nav button.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+    /* ── Main layout ── */
+    main { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+    /* ── Cards / panels ── */
+    .card {
+      background: white;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--gray-200);
+      font-weight: 600;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-body { padding: 16px; }
+
+    /* ── Grid ── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-chat { display: grid; grid-template-columns: 1fr 320px; gap: 16px; height: calc(100vh - 180px); }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge-blue   { background: var(--blue-light);  color: var(--blue-dark); }
+    .badge-green  { background: var(--green-light); color: var(--green); }
+    .badge-amber  { background: var(--amber-light); color: var(--amber); }
+    .badge-gray   { background: var(--gray-100);    color: var(--gray-600); }
+    .badge-red    { background: var(--red-light);   color: var(--red); }
+
+    /* ── Tables ── */
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--gray-400);
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--gray-100); }
+    tr:last-child td { border-bottom: none; }
+    tr.clickable { cursor: pointer; transition: background .1s; }
+    tr.clickable:hover td { background: var(--gray-50); }
+
+    /* ── Empty state ── */
+    .empty {
+      text-align: center;
+      padding: 40px;
+      color: var(--gray-400);
+      font-size: 13px;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: opacity .15s, background .15s;
+    }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-primary { background: var(--blue); color: white; }
+    .btn-primary:hover:not(:disabled) { background: var(--blue-dark); }
+    .btn-secondary { background: var(--gray-100); color: var(--gray-800); }
+    .btn-secondary:hover:not(:disabled) { background: var(--gray-200); }
+    .btn-sm { padding: 5px 10px; font-size: 12px; }
+
+    /* ── Forms ── */
+    textarea {
+      width: 100%;
+      border: 1px solid var(--gray-200);
+      border-radius: 6px;
+      padding: 12px;
+      font-family: "Fira Code", "Cascadia Code", ui-monospace, monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      resize: vertical;
+      color: var(--gray-800);
+      background: var(--gray-50);
+    }
+    textarea:focus { outline: 2px solid var(--blue); outline-offset: -1px; border-color: transparent; }
+
+    /* ── Alert banner ── */
+    .alert {
+      padding: 12px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .alert.show { display: block; }
+    .alert-success { background: var(--green-light); color: var(--green); border: 1px solid #bbf7d0; }
+    .alert-error   { background: var(--red-light);   color: var(--red);   border: 1px solid #fecaca; }
+
+    /* ── Chat ── */
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .msg { max-width: 75%; display: flex; flex-direction: column; gap: 4px; }
+    .msg.user { align-self: flex-end; align-items: flex-end; }
+    .msg.agent { align-self: flex-start; align-items: flex-start; }
+    .msg-bubble {
+      padding: 10px 14px;
+      border-radius: 12px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .msg.user  .msg-bubble { background: var(--blue);  color: white; border-radius: 12px 12px 4px 12px; }
+    .msg.agent .msg-bubble { background: var(--gray-100); color: var(--gray-800); border-radius: 12px 12px 12px 4px; }
+    .msg-time { font-size: 10px; color: var(--gray-400); }
+
+    .chat-input-row {
+      padding: 12px 16px;
+      border-top: 1px solid var(--gray-200);
+      display: flex;
+      gap: 8px;
+    }
+    .chat-input-row input {
+      flex: 1;
+      border: 1px solid var(--gray-200);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+    .chat-input-row input:focus { outline: 2px solid var(--blue); outline-offset: -1px; border-color: transparent; }
+
+    .chat-panel {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      background: white;
+      overflow: hidden;
+    }
+    .chat-panel-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--gray-200);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    /* ── Metadata panel ── */
+    .meta-panel {
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--gray-100);
+      gap: 8px;
+    }
+    .meta-row:last-child { border-bottom: none; }
+    .meta-key { font-size: 11px; color: var(--gray-400); flex-shrink: 0; }
+    .meta-val { font-size: 12px; font-weight: 500; text-align: right; word-break: break-word; max-width: 180px; }
+    .meta-pending { color: var(--gray-200); font-style: italic; font-weight: 400; }
+
+    .completion-banner {
+      background: var(--green-light);
+      border: 1px solid #bbf7d0;
+      border-radius: 6px;
+      padding: 12px 16px;
+      color: var(--green);
+      font-size: 13px;
+      font-weight: 500;
+      margin: 8px 16px;
+      display: none;
+    }
+    .completion-banner.show { display: block; }
+
+    .typing-indicator {
+      display: none;
+      align-self: flex-start;
+      padding: 10px 14px;
+      background: var(--gray-100);
+      border-radius: 12px 12px 12px 4px;
+    }
+    .typing-indicator.show { display: flex; gap: 4px; align-items: center; }
+    .typing-indicator span {
+      width: 6px; height: 6px; background: var(--gray-400); border-radius: 50%;
+      animation: bounce .8s infinite;
+    }
+    .typing-indicator span:nth-child(2) { animation-delay: .15s; }
+    .typing-indicator span:nth-child(3) { animation-delay: .3s; }
+    @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-4px)} }
+
+    /* ── Utility ── */
+    .hidden { display: none !important; }
+    .flex-between { display: flex; justify-content: space-between; align-items: center; }
+    .mt-4 { margin-top: 16px; }
+    .text-sm { font-size: 12px; color: var(--gray-600); }
+    .mono { font-family: ui-monospace, monospace; font-size: 12px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="status-dot" id="statusDot"></div>
+  <div>
+    <h1>Declarative Agent Framework</h1>
+    <div class="subtitle" id="statusText">Connecting…</div>
+  </div>
+</header>
+
+<nav>
+  <button class="active" onclick="showTab('dashboard')">Dashboard</button>
+  <button onclick="showTab('create')">Create Agent</button>
+  <button onclick="showTab('chat')" id="chatTabBtn">Chat</button>
+</nav>
+
+<main>
+
+  <!-- ════════════════════════════════════════════════════════ DASHBOARD ═══ -->
+  <div id="tab-dashboard">
+    <div class="grid-2">
+
+      <!-- LLM Clouds -->
+      <div class="card">
+        <div class="card-header">
+          <span>🔧</span> LLM Clouds
+          <span class="text-sm" style="margin-left:auto" id="defaultCloudLabel"></span>
+        </div>
+        <div id="cloudsTable"><div class="empty">Loading…</div></div>
+      </div>
+
+      <!-- Deployed Agents -->
+      <div class="card">
+        <div class="card-header flex-between">
+          <span><span>🤖</span> Deployed Agents</span>
+          <button class="btn btn-primary btn-sm" onclick="showTab('create')">+ New Agent</button>
+        </div>
+        <div id="agentsTable"><div class="empty">Loading…</div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ CREATE AGENT ═══ -->
+  <div id="tab-create" class="hidden">
+    <div class="card">
+      <div class="card-header flex-between">
+        <span><span>📝</span> Define Your Agent</span>
+        <span class="text-sm">Paste or edit a YAML agent spec, then click Deploy</span>
+      </div>
+      <div class="card-body">
+        <div id="createAlert" class="alert"></div>
+        <textarea id="specYaml" rows="42" spellcheck="false"></textarea>
+        <div style="margin-top:12px; display:flex; gap:8px; align-items:center;">
+          <button class="btn btn-primary" id="deployBtn" onclick="deployAgent()">🚀 Deploy Agent</button>
+          <button class="btn btn-secondary" onclick="resetSpec()">Reset to Example</button>
+          <span id="deployResult" class="text-sm"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════ CHAT ════ -->
+  <div id="tab-chat" class="hidden">
+    <div class="grid-chat">
+
+      <!-- Chat panel -->
+      <div class="chat-panel">
+        <div class="chat-panel-header">
+          <span>💬</span>
+          <div>
+            <div id="chatAgentName" style="font-weight:600; font-size:13px;">No agent selected</div>
+            <div id="chatAgentMeta" class="text-sm mono"></div>
+          </div>
+          <div style="margin-left:auto; display:flex; gap:6px;" id="chatBadges"></div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+          <div class="empty" id="chatEmpty">Select an agent from the Dashboard to start chatting.</div>
+        </div>
+
+        <div class="typing-indicator" id="typingIndicator">
+          <span></span><span></span><span></span>
+        </div>
+
+        <div class="completion-banner" id="completionBanner">
+          ✅ Interview complete — all required fields collected.
+        </div>
+
+        <div class="chat-input-row">
+          <input type="text" id="chatInput" placeholder="Type a message…"
+                 onkeydown="if(event.key==='Enter')sendMessage()" disabled>
+          <button class="btn btn-primary" id="sendBtn" onclick="sendMessage()" disabled>Send</button>
+        </div>
+      </div>
+
+      <!-- Metadata panel -->
+      <div class="card meta-panel">
+        <div class="card-header">📊 Collected Metadata</div>
+        <div id="metaContent"><div class="empty">Metadata will appear here as the conversation progresses.</div></div>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// State
+// ─────────────────────────────────────────────────────────────────────────────
+let currentTab = 'dashboard';
+let activeAgent = null;   // { agent_id, name, type, llm_cloud }
+let activeConvId = null;
+let isWaiting = false;
+let metaFields = [];      // from spec after create
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Tabs
+// ─────────────────────────────────────────────────────────────────────────────
+function showTab(tab) {
+  document.querySelectorAll('main > div').forEach(el => el.classList.add('hidden'));
+  document.getElementById('tab-' + tab).classList.remove('hidden');
+  document.querySelectorAll('nav button').forEach((b, i) => {
+    b.classList.toggle('active', ['dashboard','create','chat'][i] === tab);
+  });
+  currentTab = tab;
+  if (tab === 'dashboard') refreshDashboard();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Dashboard
+// ─────────────────────────────────────────────────────────────────────────────
+async function refreshDashboard() {
+  await Promise.all([loadHealth(), loadAdminConfig(), loadAgents()]);
+}
+
+async function loadHealth() {
+  try {
+    const r = await fetch('/health');
+    const ok = r.ok;
+    document.getElementById('statusDot').className = 'status-dot ' + (ok ? 'ok' : 'err');
+    document.getElementById('statusText').textContent = ok ? 'Server online' : 'Server error';
+  } catch {
+    document.getElementById('statusDot').className = 'status-dot err';
+    document.getElementById('statusText').textContent = 'Cannot reach server';
+  }
+}
+
+async function loadAdminConfig() {
+  try {
+    const cfg = await fetchJSON('/admin/config');
+    const clouds = cfg.llm_clouds;
+    const defaultCloud = cfg.default_llm_cloud;
+    const override = cfg.env_override;
+
+    document.getElementById('defaultCloudLabel').textContent =
+      override ? `Default: ${defaultCloud} (env override)` : `Default: ${defaultCloud}`;
+
+    const rows = Object.entries(clouds).map(([name, c]) => {
+      const isDefault = name === defaultCloud;
+      const providerBadge = c.provider === 'ollama'
+        ? '<span class="badge badge-amber">local</span>'
+        : '<span class="badge badge-blue">cloud</span>';
+      const defaultBadge = isDefault
+        ? '<span class="badge badge-green">DEFAULT</span>'
+        : '';
+      return `<tr>
+        <td class="mono">${name}</td>
+        <td>${providerBadge}</td>
+        <td class="mono">${c.model}</td>
+        <td>${defaultBadge}</td>
+      </tr>`;
+    }).join('');
+
+    document.getElementById('cloudsTable').innerHTML = `
+      <table>
+        <thead><tr><th>Name</th><th>Type</th><th>Model</th><th></th></tr></thead>
+        <tbody>${rows || '<tr><td colspan="4"><div class="empty">No clouds configured</div></td></tr>'}</tbody>
+      </table>`;
+  } catch(e) {
+    document.getElementById('cloudsTable').innerHTML = '<div class="empty">Failed to load config</div>';
+  }
+}
+
+async function loadAgents() {
+  try {
+    const agents = await fetchJSON('/agents');
+    if (!agents.length) {
+      document.getElementById('agentsTable').innerHTML =
+        '<div class="empty">No agents deployed yet. <a href="#" onclick="showTab(\'create\')">Create one →</a></div>';
+      return;
+    }
+    const rows = agents.map(a => `
+      <tr class="clickable" onclick="openChat(${JSON.stringify(a).replace(/"/g,'&quot;')})">
+        <td><strong>${esc(a.name)}</strong></td>
+        <td><span class="badge badge-gray">${esc(a.type)}</span></td>
+        <td class="mono text-sm">${esc(a.llm_cloud || '—')}</td>
+        <td><span class="badge badge-green">${esc(a.status)}</span></td>
+        <td class="mono text-sm">${esc(a.agent_id)}</td>
+      </tr>`).join('');
+    document.getElementById('agentsTable').innerHTML = `
+      <table>
+        <thead><tr><th>Name</th><th>Type</th><th>Cloud</th><th>Status</th><th>ID</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  } catch(e) {
+    document.getElementById('agentsTable').innerHTML = '<div class="empty">Failed to load agents</div>';
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Create Agent
+// ─────────────────────────────────────────────────────────────────────────────
+const EXAMPLE_SPEC = `name: "Customer Discovery Bot"
+description: >
+  Conducts structured discovery interviews to capture key customer insights
+  about their workflows, pain points, and buying context for Product X.
+
+type: interview_bot
+
+# References a key in admin_config.yaml. Remove to use the default cloud.
+llm_cloud: ollama-llama3
+
+config:
+  topic: "Customer discovery for Product X — understanding your workflow and challenges"
+  tone: "warm and curious, professional but not stuffy — like a knowledgeable colleague"
+
+  opening_hints:
+    - "Introduce yourself briefly as a discovery researcher, not a salesperson"
+    - "Thank the user for their time and state the purpose"
+    - "Lead with a warm, open-ended question about their role"
+    - "Do NOT jump to product questions — establish rapport first"
+
+  metadata_to_collect:
+
+    - field: customer_role
+      label: "Role / Title"
+      description: "The contact's job title or primary function"
+      type: text
+      required: true
+      collection_hint: "Ask naturally: 'Can you tell me a bit about your role?'"
+
+    - field: customer_segment
+      label: "Customer Segment"
+      description: "Broad classification: SMB, Mid-Market, Enterprise, or Consumer"
+      type: enum
+      options: [SMB, Mid-Market, Enterprise, Consumer]
+      required: true
+      collection_hint: "Infer from context; do not ask directly"
+
+    - field: primary_pain_point
+      label: "Primary Pain Point"
+      description: "The most significant challenge or frustration they experience today"
+      type: text
+      required: true
+      collection_hint: "Ask: 'What's the biggest headache with the way you handle this today?'"
+
+    - field: current_solution
+      label: "Current Solution"
+      description: "What tools, processes, or workarounds they currently use"
+      type: text
+      required: true
+      collection_hint: "'What are you using today to handle this?'"
+
+    - field: budget_range
+      label: "Budget Range"
+      description: "Rough indication of available budget or willingness to pay"
+      type: text
+      required: false
+      collection_hint: "Only probe if they naturally raise cost concerns"
+
+    - field: timeline
+      label: "Timeline / Urgency"
+      description: "How urgently they need a solution"
+      type: text
+      required: false
+
+  segmentation:
+    rules:
+      - if_keywords: ["startup", "early stage", "just me", "bootstrap", "small team"]
+        set_field: customer_segment
+        set_value: SMB
+      - if_keywords: ["enterprise", "Fortune 500", "global", "thousands of employees"]
+        set_field: customer_segment
+        set_value: Enterprise
+
+  keyword_triggers:
+    budget:
+      action: note_and_probe
+      note_field: budget_mentioned
+      follow_up: "You mentioned budget — is cost a key factor for you right now?"
+    frustrated:
+      action: probe_only
+      follow_up: "I can hear that's been frustrating. Can you walk me through a specific example?"
+
+  completion:
+    strategy: all_required_fields_collected
+    closing_message: >
+      This has been incredibly helpful — thank you so much! The insights you've
+      shared will directly shape how we build this. We'll be in touch soon.
+
+  max_turns: 25
+  extraction:
+    strategy: json_block
+`;
+
+function resetSpec() {
+  document.getElementById('specYaml').value = EXAMPLE_SPEC;
+}
+
+async function deployAgent() {
+  const yaml_text = document.getElementById('specYaml').value.trim();
+  const alert = document.getElementById('createAlert');
+  const result = document.getElementById('deployResult');
+  const btn = document.getElementById('deployBtn');
+
+  alert.className = 'alert';
+  result.textContent = '';
+  btn.disabled = true;
+  btn.textContent = 'Deploying…';
+
+  let spec;
+  try {
+    spec = jsyaml.load(yaml_text);
+  } catch(e) {
+    showAlert(alert, 'error', 'YAML parse error: ' + e.message);
+    btn.disabled = false;
+    btn.textContent = '🚀 Deploy Agent';
+    return;
+  }
+
+  try {
+    const agent = await fetchJSON('/agents', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ spec }),
+    });
+
+    // Stash field list for metadata panel
+    metaFields = spec.config?.metadata_to_collect || [];
+
+    showAlert(alert, 'success',
+      `Agent deployed! ID: ${agent.agent_id}`);
+    result.innerHTML = `<button class="btn btn-secondary btn-sm" onclick="openChatById('${agent.agent_id}', '${esc(agent.name)}', '${esc(agent.type)}', '${esc(agent.llm_cloud||'')}')">Open Chat →</button>`;
+  } catch(e) {
+    showAlert(alert, 'error', e.message);
+  }
+
+  btn.disabled = false;
+  btn.textContent = '🚀 Deploy Agent';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Chat
+// ─────────────────────────────────────────────────────────────────────────────
+function openChat(agent) {
+  openChatById(agent.agent_id, agent.name, agent.type, agent.llm_cloud || '');
+}
+
+function openChatById(id, name, type, cloud) {
+  activeAgent = { agent_id: id, name, type, llm_cloud: cloud };
+  activeConvId = null;
+  isWaiting = false;
+  metaFields = metaFields.length ? metaFields : [];
+
+  document.getElementById('chatAgentName').textContent = name;
+  document.getElementById('chatAgentMeta').textContent = `${id}`;
+  document.getElementById('chatBadges').innerHTML =
+    `<span class="badge badge-gray">${esc(type)}</span>` +
+    (cloud ? `<span class="badge badge-amber">${esc(cloud)}</span>` : '');
+
+  document.getElementById('chatMessages').innerHTML = '';
+  document.getElementById('chatEmpty').style.display = 'block';
+  document.getElementById('typingIndicator').classList.remove('show');
+  document.getElementById('completionBanner').classList.remove('show');
+  document.getElementById('chatInput').disabled = false;
+  document.getElementById('sendBtn').disabled = false;
+  document.getElementById('chatInput').value = '';
+  renderMeta({});
+
+  showTab('chat');
+}
+
+async function sendMessage() {
+  if (!activeAgent || isWaiting) return;
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+
+  input.value = '';
+  appendMessage('user', msg);
+  document.getElementById('chatEmpty').style.display = 'none';
+  isWaiting = true;
+  document.getElementById('sendBtn').disabled = true;
+  document.getElementById('chatInput').disabled = true;
+  document.getElementById('typingIndicator').classList.add('show');
+  scrollChat();
+
+  try {
+    const body = { message: msg };
+    if (activeConvId) body.conversation_id = activeConvId;
+
+    const tokenResp = await fetchJSON(
+      `/agents/${activeAgent.agent_id}/conversations`,
+      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
+    );
+
+    activeConvId = tokenResp.conversation_id;
+    const result = await pollResult(activeAgent.agent_id, tokenResp.token);
+
+    document.getElementById('typingIndicator').classList.remove('show');
+
+    if (result.status === 'error') {
+      appendMessage('agent', '⚠️ Error: ' + (result.error || 'Unknown error'));
+    } else {
+      appendMessage('agent', result.agent_response || '');
+      if (result.collected_metadata) renderMeta(result.collected_metadata);
+      if (result.current_segment) {
+        document.getElementById('chatBadges').innerHTML +=
+          `<span class="badge badge-blue">${esc(result.current_segment)}</span>`;
+      }
+      if (result.is_complete) {
+        document.getElementById('completionBanner').classList.add('show');
+        document.getElementById('chatInput').disabled = true;
+        document.getElementById('sendBtn').disabled = true;
+      }
+    }
+  } catch(e) {
+    document.getElementById('typingIndicator').classList.remove('show');
+    appendMessage('agent', '⚠️ ' + e.message);
+  }
+
+  isWaiting = false;
+  if (!document.getElementById('chatInput').disabled) {
+    document.getElementById('sendBtn').disabled = false;
+    document.getElementById('chatInput').disabled = false;
+    document.getElementById('chatInput').focus();
+  }
+  scrollChat();
+}
+
+async function pollResult(agentId, token, attempts = 0) {
+  const result = await fetchJSON(`/agents/${agentId}/conversations/${token}`);
+  if (result.status === 'complete' || result.status === 'error') return result;
+  if (attempts > 60) throw new Error('Timed out waiting for response');
+  await sleep(500);
+  return pollResult(agentId, token, attempts + 1);
+}
+
+function appendMessage(role, text) {
+  const msgs = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.innerHTML = `
+    <div class="msg-bubble">${esc(text)}</div>
+    <div class="msg-time">${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>`;
+  msgs.appendChild(div);
+  scrollChat();
+}
+
+function scrollChat() {
+  const el = document.getElementById('chatMessages');
+  el.scrollTop = el.scrollHeight;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Metadata panel
+// ─────────────────────────────────────────────────────────────────────────────
+function renderMeta(collected) {
+  const container = document.getElementById('metaContent');
+  if (!collected || (!Object.keys(collected).length && !metaFields.length)) {
+    container.innerHTML = '<div class="empty">Metadata will appear here as the conversation progresses.</div>';
+    return;
+  }
+
+  // Merge known fields with whatever has been collected
+  const knownFields = metaFields.length ? metaFields : Object.keys(collected).map(k => ({ field: k, label: k, required: false }));
+  const extraKeys = Object.keys(collected).filter(k => !knownFields.find(f => f.field === k));
+
+  const rows = [
+    ...knownFields.map(f => {
+      const val = collected[f.field];
+      const hasVal = val !== undefined && val !== null && val !== '';
+      return `<div class="meta-row">
+        <span class="meta-key">${esc(f.label || f.field)}${f.required ? ' *' : ''}</span>
+        <span class="meta-val ${hasVal ? '' : 'meta-pending'}">${hasVal ? esc(String(val)) : '—'}</span>
+      </div>`;
+    }),
+    ...extraKeys.map(k => {
+      const val = collected[k];
+      return `<div class="meta-row">
+        <span class="meta-key">${esc(k)}</span>
+        <span class="meta-val">${esc(String(val))}</span>
+      </div>`;
+    }),
+  ].join('');
+
+  container.innerHTML = rows;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Utilities
+// ─────────────────────────────────────────────────────────────────────────────
+async function fetchJSON(url, opts) {
+  const r = await fetch(url, opts);
+  if (!r.ok) {
+    let msg = `HTTP ${r.status}`;
+    try { const d = await r.json(); msg = d.detail || JSON.stringify(d); } catch {}
+    throw new Error(msg);
+  }
+  return r.json();
+}
+
+function showAlert(el, type, msg) {
+  el.className = `alert show alert-${type}`;
+  el.textContent = msg;
+}
+
+function esc(str) {
+  return String(str ?? '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Init
+// ─────────────────────────────────────────────────────────────────────────────
+document.getElementById('specYaml').value = EXAMPLE_SPEC;
+refreshDashboard();
+// Poll server status every 30s
+setInterval(loadHealth, 30000);
+</script>
+</body>
+</html>

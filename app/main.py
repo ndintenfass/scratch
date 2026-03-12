@@ -2,7 +2,7 @@
 FastAPI application entrypoint.
 
 Startup:
-  - Loads admin_config.yaml
+  - Loads admin_config.yaml (DEFAULT_LLM_CLOUD env var overrides default cloud)
   - Creates AgentStore and AgentFactory, attaches them to app.state
 
 Run locally:
@@ -14,13 +14,17 @@ Run on Render (via render.yaml):
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.config import load_admin_config
 from app.agents.factory import AgentFactory
 from app.store import AgentStore
-from app.routers.agents import router
+from app.routers.agents import router as agents_router
+from app.routers.admin import router as admin_router
 
 
 @asynccontextmanager
@@ -48,4 +52,15 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-app.include_router(router)
+app.include_router(agents_router)
+app.include_router(admin_router)
+
+# Serve the web UI at /ui
+_static_dir = Path(__file__).parent / "static"
+app.mount("/ui", StaticFiles(directory=str(_static_dir), html=True), name="ui")
+
+
+@app.get("/", include_in_schema=False)
+async def root():
+    """Redirect root to the web UI."""
+    return RedirectResponse(url="/ui")
