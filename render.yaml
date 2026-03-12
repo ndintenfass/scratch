@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: declarative-agent-framework
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ADMIN_CONFIG_PATH
+        value: admin_config.yaml

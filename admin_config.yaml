@@ -1,0 +1,58 @@
+# =============================================================================
+# Admin Configuration — Declarative Agent Framework
+# =============================================================================
+# This file defines the universe of available LLM cloud configurations.
+# Each agent spec references one of these clouds by its key name.
+#
+# To add a new LLM cloud:
+#   1. Add a new entry under llm_clouds with a unique key
+#   2. Set the appropriate provider, model, and connection details
+#   3. Reference it from an agent spec's llm_cloud field
+# =============================================================================
+
+llm_clouds:
+
+  # ---------------------------------------------------------------------------
+  # LOCAL: Ollama — runs on your machine, no API key required
+  # Install Ollama: https://ollama.com/  →  ollama pull llama3.2
+  # ---------------------------------------------------------------------------
+  ollama-llama3:
+    provider: ollama
+    model: llama3.2
+    base_url: "http://localhost:11434"
+    timeout_seconds: 120
+
+  ollama-mistral:
+    provider: ollama
+    model: mistral
+    base_url: "http://localhost:11434"
+    timeout_seconds: 120
+
+  # ---------------------------------------------------------------------------
+  # CLOUD: Anthropic — production quality, requires ANTHROPIC_API_KEY env var
+  #
+  # proxy_endpoint: where the real LLM proxy will live in production.
+  #   use_proxy: false  → call Anthropic API directly (current prototype mode)
+  #   use_proxy: true   → route through proxy_endpoint (future production mode)
+  # ---------------------------------------------------------------------------
+  anthropic-claude-sonnet:
+    provider: anthropic
+    model: claude-sonnet-4-6
+    proxy_endpoint: "http://llm-proxy.internal/v1"
+    api_key_env: ANTHROPIC_API_KEY
+    use_proxy: false
+
+  anthropic-claude-haiku:
+    provider: anthropic
+    model: claude-haiku-4-5-20251001
+    proxy_endpoint: "http://llm-proxy.internal/v1"
+    api_key_env: ANTHROPIC_API_KEY
+    use_proxy: false
+
+# ---------------------------------------------------------------------------
+# Defaults applied when an agent spec does not specify a value
+# ---------------------------------------------------------------------------
+defaults:
+  # Which cloud to use when an agent spec omits llm_cloud
+  # Change this to "anthropic-claude-sonnet" for cloud-based demos
+  llm_cloud: ollama-llama3
