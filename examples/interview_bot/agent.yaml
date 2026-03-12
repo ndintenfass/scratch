@@ -1,0 +1,220 @@
+# =============================================================================
+# Agent Package: Customer Discovery Bot
+# =============================================================================
+# This file is the declarative spec for a customer discovery interview bot.
+# It is the required file in an agent package directory.
+#
+# To deploy this agent via the API:
+#   POST /agents/from-package   body: { "package_path": "./examples/interview_bot" }
+#
+# Or inline (after parsing this YAML to JSON):
+#   POST /agents   body: { "spec": { ...this file's contents... } }
+# =============================================================================
+
+name: "Customer Discovery Bot"
+description: >
+  Conducts structured discovery interviews to capture key customer insights
+  about their workflows, pain points, and buying context for Product X.
+  Designed for sales and product teams to qualify and understand prospects.
+
+# Agent type — determines which implementation class is instantiated.
+# Currently supported: interview_bot
+type: interview_bot
+
+# References a key in admin_config.yaml.
+# Omit to use the default cloud configured in admin_config.yaml defaults.
+llm_cloud: ollama-llama3
+
+config:
+  # The subject of the interview. Included in the agent's system prompt.
+  topic: "Customer discovery for Product X — understanding your workflow and challenges"
+
+  # The conversational tone the agent should adopt.
+  tone: "warm and curious, professional but not stuffy — like a knowledgeable colleague"
+
+  # Ordered hints for opening the conversation.
+  # The agent uses these to generate its first message.
+  opening_hints:
+    - "Introduce yourself briefly as a discovery researcher, not a salesperson"
+    - "Thank the user for their time and state the purpose is to understand their world"
+    - "Lead with a warm, open-ended question about their role and day-to-day workflow"
+    - "Do NOT jump to product questions — establish rapport and context first"
+
+  # Hints for closing the conversation once all required fields are collected.
+  closing_hints:
+    - "Summarise the key themes you heard from them"
+    - "Let them know their insights will directly shape the product"
+    - "Ask if there's anything else they'd like to add"
+
+  # Structured metadata to collect during the interview.
+  # Each field defines WHAT to collect and HOW to approach it.
+  metadata_to_collect:
+
+    - field: customer_role
+      label: "Role / Title"
+      description: "The contact's job title or primary function"
+      type: text
+      required: true
+      collection_hint: "Ask naturally: 'Can you tell me a bit about your role?'"
+
+    - field: customer_segment
+      label: "Customer Segment"
+      description: >
+        Broad classification of the customer type.
+        SMB = 1-50 employees, Mid-Market = 51-500, Enterprise = 500+, Consumer = individual
+      type: enum
+      options: [SMB, Mid-Market, Enterprise, Consumer]
+      required: true
+      collection_hint: >
+        Infer from context (company size, how they describe their team).
+        Do not ask 'what segment are you' — that's unnatural.
+
+    - field: team_size
+      label: "Team Size"
+      description: "How large is the team that would use this product"
+      type: text
+      required: false
+      collection_hint: "Usually surfaces naturally when discussing workflows"
+
+    - field: primary_pain_point
+      label: "Primary Pain Point"
+      description: "The most significant challenge or frustration they experience today"
+      type: text
+      required: true
+      collection_hint: >
+        Ask something like: 'What's the biggest headache with the way you handle this today?'
+        or 'If you could wave a magic wand and fix one thing, what would it be?'
+
+    - field: current_solution
+      label: "Current Solution"
+      description: "What tools, processes, or workarounds they currently use"
+      type: text
+      required: true
+      collection_hint: >
+        'What are you using today to handle [topic area]?' — let them describe
+        the tools and manual steps they rely on.
+
+    - field: decision_maker
+      label: "Decision-Making Role"
+      description: "Whether this person makes the buying decision, influences it, or is an end user"
+      type: enum
+      options: [decision_maker, influencer, end_user, unknown]
+      required: false
+      collection_hint: >
+        Infer from how they talk about procurement, budgets, or 'getting approval'.
+        Can ask: 'When you've adopted new tools in the past, what does that process look like?'
+
+    - field: budget_range
+      label: "Budget Range"
+      description: "Rough indication of available budget or willingness to pay"
+      type: text
+      required: false
+      collection_hint: >
+        Only probe if they naturally raise cost/budget concerns.
+        Do not bring this up proactively early in the conversation.
+
+    - field: timeline
+      label: "Timeline / Urgency"
+      description: "How urgently they need a solution — are they actively evaluating?"
+      type: text
+      required: false
+      collection_hint: >
+        'Is this something you're looking to solve in the next few months, or more
+        of a longer-term exploration?'
+
+    - field: satisfaction_with_current
+      label: "Satisfaction with Current Solution"
+      description: "How satisfied they are with their current approach (1-10 or qualitative)"
+      type: text
+      required: false
+      collection_hint: "'On a scale of 1-10, how happy are you with how you handle this today?'"
+
+  # Segmentation rules: automatically classify the customer based on
+  # keywords they mention. Sets collected_fields and detected_segment.
+  segmentation:
+    rules:
+      - if_keywords: ["startup", "early stage", "just me", "solo", "bootstrap", "small team"]
+        set_field: customer_segment
+        set_value: SMB
+
+      - if_keywords: ["enterprise", "Fortune 500", "global", "thousands of employees",
+                      "large org", "corporation", "multinational"]
+        set_field: customer_segment
+        set_value: Enterprise
+
+      - if_keywords: ["mid-market", "growing company", "Series B", "Series C",
+                      "a few hundred"]
+        set_field: customer_segment
+        set_value: Mid-Market
+
+      - if_keywords: ["competitor", "alternative to", "switching from", "currently using",
+                      "evaluated", "compared"]
+        action: probe_current_solution
+        follow_up: >
+          It sounds like you've looked at alternatives. Tell me more about what you're
+          using today and what prompted you to explore other options.
+
+  # Keyword triggers: react when specific words appear in the user's message.
+  keyword_triggers:
+
+    budget:
+      action: note_and_probe
+      note_field: budget_mentioned
+      follow_up: >
+        You mentioned budget — is cost a key factor for you right now?
+        What kind of investment range are you thinking?
+
+    pricing:
+      action: note_and_probe
+      note_field: pricing_sensitive
+      follow_up: >
+        Happy to touch on that. To help me understand — what budget
+        are you typically working with for tools like this?
+
+    urgent:
+      action: set_field
+      set_field: timeline
+      set_value: urgent
+
+    immediately:
+      action: set_field
+      set_field: timeline
+      set_value: urgent
+
+    frustrated:
+      action: probe_only
+      follow_up: >
+        I can hear that's been frustrating. Can you walk me through
+        a specific example of where this breaks down for you?
+
+    love:
+      action: probe_only
+      follow_up: >
+        Great to hear! What specifically do you love about that approach —
+        what makes it work well?
+
+    cancel:
+      action: note_and_probe
+      note_field: churn_risk
+      follow_up: >
+        That's important feedback. What would need to be different
+        for it to be worth staying with / adopting a solution?
+
+  # When is the interview complete?
+  completion:
+    strategy: all_required_fields_collected
+    closing_message: >
+      This has been incredibly helpful — thank you so much for sharing your
+      perspective! The insights you've given us will directly shape how we
+      build this. We'll be in touch soon. Is there anything else you'd like
+      to add before we wrap up?
+
+  # Safety limit: end conversation after this many turns regardless
+  max_turns: 25
+
+  # Field extraction strategy:
+  #   json_block   (default) — LLM appends a structured JSON block to each reply
+  #   second_pass             — separate LLM call for extraction (more reliable, slower)
+  #   heuristic               — regex/keyword matching (fast, less accurate)
+  extraction:
+    strategy: json_block
