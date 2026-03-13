@@ -2,10 +2,24 @@ services:
   - type: web
     name: declarative-agent-framework
     env: python
+    pythonVersion: "3.11.0"
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
     envVars:
+      # -----------------------------------------------------------------------
+      # REQUIRED: Set this in the Render dashboard before deploying.
+      # Get your key at https://console.anthropic.com/
+      # -----------------------------------------------------------------------
       - key: ANTHROPIC_API_KEY
         sync: false
+
+      # Path to the admin config file (relative to repo root)
       - key: ADMIN_CONFIG_PATH
         value: admin_config.yaml
+
+      # Override the default LLM cloud for this environment.
+      # On Render, Ollama is not available, so we use Anthropic directly.
+      # Change to anthropic-claude-haiku for a faster/cheaper alternative.
+      - key: DEFAULT_LLM_CLOUD
+        value: anthropic-claude-sonnet
