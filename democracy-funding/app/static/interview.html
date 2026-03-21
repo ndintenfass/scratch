@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Submit Your Idea — Democracy Funding Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen flex flex-col">
+
+  <nav class="bg-gray-900 border-b border-gray-800 px-6 py-4 flex items-center justify-between">
+    <a href="/" class="text-xl font-bold text-blue-400">Democracy Funding</a>
+    <span class="text-sm text-gray-400">Submit Your Idea</span>
+  </nav>
+
+  <main class="flex-1 max-w-2xl mx-auto w-full px-4 py-10 flex flex-col">
+
+    <!-- Intro (shown before interview starts) -->
+    <div id="intro" class="text-center mb-8">
+      <h1 class="text-3xl font-bold mb-4">Share Your Democracy-Saving Idea</h1>
+      <p class="text-gray-400 mb-6">
+        Our AI assistant will interview you to capture your project idea in a structured format.
+        The whole process takes about 5–10 minutes. Your idea will be submitted for community review and voting.
+      </p>
+      <button id="start-btn" onclick="startInterview()"
+              class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 py-3 rounded-lg transition text-lg">
+        Start Interview
+      </button>
+    </div>
+
+    <!-- Progress bar -->
+    <div id="progress-section" class="hidden mb-6">
+      <div class="flex justify-between text-xs text-gray-500 mb-1">
+        <span id="progress-label">Collecting information...</span>
+        <span id="fields-count">0 / 5 fields collected</span>
+      </div>
+      <div class="bg-gray-800 rounded-full h-2">
+        <div id="progress-bar" class="bg-blue-500 h-2 rounded-full transition-all" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Chat area -->
+    <div id="chat-area" class="hidden flex-1 flex flex-col">
+      <div id="messages" class="flex-1 space-y-4 mb-4 overflow-y-auto max-h-[50vh] pr-2">
+      </div>
+
+      <!-- Input -->
+      <div id="input-area" class="flex gap-3">
+        <input id="user-input" type="text"
+               placeholder="Type your response..."
+               class="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+               onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendMessage()}"
+               disabled>
+        <button id="send-btn" onclick="sendMessage()"
+                class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-3 rounded-lg transition disabled:opacity-50"
+                disabled>
+          Send
+        </button>
+      </div>
+    </div>
+
+    <!-- Completion panel -->
+    <div id="complete-panel" class="hidden text-center">
+      <div class="bg-green-900 border border-green-700 rounded-xl p-8 mb-6">
+        <div class="text-5xl mb-4">✅</div>
+        <h2 class="text-2xl font-bold text-green-300 mb-2">Interview Complete!</h2>
+        <p class="text-green-200">Your idea has been captured. Click below to submit it to the platform.</p>
+      </div>
+      <button id="submit-btn" onclick="submitProject()"
+              class="bg-green-600 hover:bg-green-500 text-white font-bold px-10 py-4 rounded-lg transition text-lg">
+        Submit Project
+      </button>
+    </div>
+
+    <!-- Success panel -->
+    <div id="success-panel" class="hidden text-center">
+      <div class="bg-blue-900 border border-blue-700 rounded-xl p-8">
+        <div class="text-5xl mb-4">🎉</div>
+        <h2 class="text-2xl font-bold text-blue-300 mb-2">Project Submitted!</h2>
+        <p class="text-blue-200 mb-6">Your idea is now under review. Once approved, the community can vote on it.</p>
+        <div class="flex gap-4 justify-center flex-wrap">
+          <a id="project-link" href="#"
+             class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-3 rounded-lg transition">
+            View Your Project
+          </a>
+          <a href="/" class="border border-gray-600 hover:border-gray-400 text-gray-300 px-6 py-3 rounded-lg transition">
+            Back to Projects
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    let sessionId = null;
+    let isComplete = false;
+    const REQUIRED_FIELDS = ['title', 'problem_statement', 'solution', 'estimated_budget', 'measurable_outcomes'];
+
+    function addMessage(role, text) {
+      const msgs = document.getElementById('messages');
+      const isUser = role === 'user';
+      const div = document.createElement('div');
+      div.className = `flex ${isUser ? 'justify-end' : 'justify-start'}`;
+      div.innerHTML = `
+        <div class="max-w-[80%] ${isUser
+          ? 'bg-blue-700 text-white'
+          : 'bg-gray-800 text-gray-100'
+        } rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap">
+          ${escHtml(text)}
+        </div>`;
+      msgs.appendChild(div);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    function addTyping() {
+      const msgs = document.getElementById('messages');
+      const div = document.createElement('div');
+      div.id = 'typing';
+      div.className = 'flex justify-start';
+      div.innerHTML = `
+        <div class="bg-gray-800 text-gray-400 rounded-2xl px-4 py-3 text-sm">
+          <span class="animate-pulse">AI is thinking...</span>
+        </div>`;
+      msgs.appendChild(div);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    function removeTyping() {
+      document.getElementById('typing')?.remove();
+    }
+
+    function updateProgress(fields) {
+      const collected = REQUIRED_FIELDS.filter(f => fields[f] != null).length;
+      const pct = Math.min(100, (collected / REQUIRED_FIELDS.length) * 100);
+      document.getElementById('progress-bar').style.width = pct + '%';
+      document.getElementById('fields-count').textContent = `${collected} / ${REQUIRED_FIELDS.length} key fields collected`;
+    }
+
+    async function startInterview() {
+      document.getElementById('intro').classList.add('hidden');
+      document.getElementById('progress-section').classList.remove('hidden');
+      document.getElementById('chat-area').classList.remove('hidden');
+      addTyping();
+
+      try {
+        const res = await fetch('/api/interview/start', { method: 'POST' });
+        const data = await res.json();
+        removeTyping();
+        sessionId = data.session_id;
+        addMessage('assistant', data.message);
+        updateProgress(data.collected_fields);
+        enableInput();
+      } catch (e) {
+        removeTyping();
+        addMessage('assistant', 'Sorry, something went wrong. Please refresh and try again.');
+      }
+    }
+
+    function enableInput() {
+      document.getElementById('user-input').disabled = false;
+      document.getElementById('send-btn').disabled = false;
+      document.getElementById('user-input').focus();
+    }
+
+    function disableInput() {
+      document.getElementById('user-input').disabled = true;
+      document.getElementById('send-btn').disabled = true;
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById('user-input');
+      const text = input.value.trim();
+      if (!text || !sessionId) return;
+      input.value = '';
+      disableInput();
+      addMessage('user', text);
+      addTyping();
+
+      try {
+        const res = await fetch(`/api/interview/${sessionId}/turn`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text }),
+        });
+        const data = await res.json();
+        removeTyping();
+        addMessage('assistant', data.message);
+        updateProgress(data.collected_fields);
+
+        if (data.is_complete) {
+          document.getElementById('input-area').classList.add('hidden');
+          document.getElementById('complete-panel').classList.remove('hidden');
+          document.getElementById('progress-label').textContent = 'Interview complete!';
+        } else {
+          enableInput();
+        }
+      } catch (e) {
+        removeTyping();
+        addMessage('assistant', 'Something went wrong. Please try again.');
+        enableInput();
+      }
+    }
+
+    async function submitProject() {
+      document.getElementById('submit-btn').disabled = true;
+      document.getElementById('submit-btn').textContent = 'Submitting...';
+      try {
+        const res = await fetch(`/api/interview/${sessionId}/submit`, { method: 'POST' });
+        const data = await res.json();
+        document.getElementById('complete-panel').classList.add('hidden');
+        document.getElementById('success-panel').classList.remove('hidden');
+        document.getElementById('project-link').href = `/project/${data.project_uuid}`;
+      } catch (e) {
+        document.getElementById('submit-btn').disabled = false;
+        document.getElementById('submit-btn').textContent = 'Submit Project';
+        alert('Submission failed. Please try again.');
+      }
+    }
+
+    function escHtml(s) {
+      const d = document.createElement('div');
+      d.textContent = s || '';
+      return d.innerHTML;
+    }
+  </script>
+</body>
+</html>

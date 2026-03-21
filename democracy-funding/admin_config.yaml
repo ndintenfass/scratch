@@ -1,0 +1,24 @@
+llm_clouds:
+
+  ollama-llama3:
+    provider: ollama
+    model: llama3.2
+    base_url: "http://localhost:11434"
+    timeout_seconds: 120
+
+  anthropic-claude-sonnet:
+    provider: anthropic
+    model: claude-sonnet-4-6
+    proxy_endpoint: "http://llm-proxy.internal/v1"
+    api_key_env: ANTHROPIC_API_KEY
+    use_proxy: false
+
+  anthropic-claude-haiku:
+    provider: anthropic
+    model: claude-haiku-4-5-20251001
+    proxy_endpoint: "http://llm-proxy.internal/v1"
+    api_key_env: ANTHROPIC_API_KEY
+    use_proxy: false
+
+defaults:
+  llm_cloud: anthropic-claude-haiku

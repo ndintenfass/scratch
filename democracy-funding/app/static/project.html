@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project — Democracy Funding Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+
+  <nav class="bg-gray-900 border-b border-gray-800 px-6 py-4 flex items-center justify-between">
+    <a href="/" class="text-xl font-bold text-blue-400">Democracy Funding</a>
+    <a href="/" class="text-sm text-gray-400 hover:text-white transition">← All Projects</a>
+  </nav>
+
+  <main class="max-w-3xl mx-auto px-4 py-12" id="main">
+    <div class="text-center text-gray-500 py-20">Loading project...</div>
+  </main>
+
+  <!-- Vote Modal -->
+  <div id="vote-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
+    <div class="bg-gray-900 border border-gray-700 rounded-2xl p-8 max-w-md w-full">
+      <h2 class="text-2xl font-bold mb-2">Vote for This Project</h2>
+      <p class="text-gray-400 text-sm mb-6">
+        Enter your email to cast your vote. In production, you'd receive a confirmation link.
+        For this prototype, the confirmation link is returned directly.
+      </p>
+      <input id="vote-email" type="email" placeholder="your@email.com"
+             class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white mb-4 focus:outline-none focus:border-blue-500">
+      <div class="flex gap-3">
+        <button onclick="submitVote()"
+                class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg transition">
+          Request Vote Link
+        </button>
+        <button onclick="closeVoteModal()"
+                class="px-4 py-3 border border-gray-700 rounded-lg text-gray-400 hover:text-white transition">
+          Cancel
+        </button>
+      </div>
+      <div id="vote-result" class="hidden mt-4"></div>
+    </div>
+  </div>
+
+  <script>
+    const THRESHOLD = 1000000;
+    const uuid = window.location.pathname.split('/').pop();
+    let projectData = null;
+
+    function fmtVotes(n) {
+      if (n >= 1000000) return (n/1000000).toFixed(2) + 'M';
+      if (n >= 1000) return (n/1000).toFixed(1) + 'K';
+      return n.toString();
+    }
+
+    function escHtml(s) {
+      const d = document.createElement('div');
+      d.textContent = s || '';
+      return d.innerHTML;
+    }
+
+    function statusBadge(s) {
+      const map = {approved:'bg-green-900 text-green-300', viable:'bg-purple-900 text-purple-300', funded:'bg-yellow-900 text-yellow-300'};
+      return `<span class="text-sm px-3 py-1 rounded-full ${map[s]||'bg-gray-800 text-gray-400'}">${s}</span>`;
+    }
+
+    async function loadProject() {
+      const main = document.getElementById('main');
+      try {
+        const res = await fetch(`/api/projects/${uuid}`);
+        if (!res.ok) {
+          main.innerHTML = '<div class="text-center text-red-400 py-20">Project not found.</div>';
+          return;
+        }
+        const p = await res.json();
+        projectData = p;
+        document.title = `${p.title} — Democracy Funding Platform`;
+        const pct = Math.min(100, (p.vote_count / THRESHOLD) * 100);
+        let outcomes = [];
+        try { outcomes = JSON.parse(p.measurable_outcomes || '[]'); } catch {}
+
+        main.innerHTML = `
+          <div class="mb-4 flex items-center gap-3 flex-wrap">
+            ${statusBadge(p.status)}
+            ${p.milestone_hit ? '<span class="text-sm px-3 py-1 rounded-full bg-blue-900 text-blue-300">🎉 1M Votes Reached</span>' : ''}
+            ${p.outreach_triggered ? '<span class="text-sm px-3 py-1 rounded-full bg-orange-900 text-orange-300">🔔 Funder Outreach Triggered</span>' : ''}
+          </div>
+
+          <h1 class="text-4xl font-extrabold mb-6">${escHtml(p.title)}</h1>
+
+          <!-- Vote card -->
+          <div class="bg-gray-900 rounded-2xl p-6 mb-8 border border-gray-800">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <div class="text-4xl font-bold text-blue-400">${fmtVotes(p.vote_count)}</div>
+                <div class="text-gray-500 text-sm">votes cast</div>
+              </div>
+              <button onclick="openVoteModal()"
+                      class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 py-3 rounded-xl transition text-lg">
+                Vote for This
+              </button>
+            </div>
+            <div class="flex justify-between text-xs text-gray-500 mb-1">
+              <span>Progress to 1,000,000 votes</span>
+              <span>${pct.toFixed(2)}%</span>
+            </div>
+            <div class="bg-gray-800 rounded-full h-3">
+              <div class="bg-blue-500 h-3 rounded-full" style="width:${pct}%"></div>
+            </div>
+            ${p.estimated_budget ? `<div class="mt-3 text-sm text-gray-400">Estimated budget: <span class="text-white font-semibold">$${p.estimated_budget.toLocaleString()}</span></div>` : ''}
+          </div>
+
+          <!-- Content sections -->
+          <div class="space-y-6">
+            <section class="bg-gray-900 rounded-xl p-6 border border-gray-800">
+              <h2 class="text-lg font-bold text-blue-300 mb-3">The Problem</h2>
+              <p class="text-gray-300 leading-relaxed">${escHtml(p.problem_statement)}</p>
+            </section>
+
+            <section class="bg-gray-900 rounded-xl p-6 border border-gray-800">
+              <h2 class="text-lg font-bold text-green-300 mb-3">The Solution</h2>
+              <p class="text-gray-300 leading-relaxed">${escHtml(p.solution)}</p>
+            </section>
+
+            ${outcomes.length ? `
+            <section class="bg-gray-900 rounded-xl p-6 border border-gray-800">
+              <h2 class="text-lg font-bold text-yellow-300 mb-3">Measurable Outcomes</h2>
+              <ul class="space-y-2">
+                ${outcomes.map(o => `<li class="flex gap-2 text-gray-300"><span class="text-yellow-400 shrink-0">✓</span>${escHtml(o)}</li>`).join('')}
+              </ul>
+            </section>` : ''}
+
+            ${p.submitter_name ? `
+            <div class="text-sm text-gray-500 text-right">Submitted by ${escHtml(p.submitter_name)}</div>` : ''}
+          </div>
+
+          <!-- Share -->
+          <div class="mt-10 pt-8 border-t border-gray-800 text-center">
+            <p class="text-gray-400 mb-3">Help this project reach 1,000,000 votes — share it!</p>
+            <button onclick="navigator.clipboard.writeText(window.location.href).then(()=>alert('Link copied!'))"
+                    class="border border-gray-600 hover:border-gray-400 text-gray-300 px-6 py-2 rounded-lg transition text-sm">
+              Copy Link
+            </button>
+          </div>`;
+      } catch (e) {
+        main.innerHTML = '<div class="text-center text-red-400 py-20">Failed to load project.</div>';
+      }
+    }
+
+    function openVoteModal() {
+      document.getElementById('vote-modal').classList.remove('hidden');
+      document.getElementById('vote-email').focus();
+    }
+
+    function closeVoteModal() {
+      document.getElementById('vote-modal').classList.add('hidden');
+      document.getElementById('vote-result').classList.add('hidden');
+    }
+
+    async function submitVote() {
+      const email = document.getElementById('vote-email').value.trim();
+      if (!email) { alert('Please enter your email address.'); return; }
+      const result = document.getElementById('vote-result');
+      result.innerHTML = '<div class="text-gray-400 text-sm">Processing...</div>';
+      result.classList.remove('hidden');
+      try {
+        const res = await fetch('/api/vote/request', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, project_uuid: uuid }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          result.innerHTML = `<div class="text-red-400 text-sm">${escHtml(data.detail)}</div>`;
+          return;
+        }
+        result.innerHTML = `
+          <div class="bg-green-900 border border-green-700 rounded-lg p-4 text-sm">
+            <p class="text-green-300 font-bold mb-2">Vote token created!</p>
+            <p class="text-green-200 mb-3">${escHtml(data.message)}</p>
+            <a href="${escHtml(data.confirm_url)}" class="text-blue-400 hover:underline break-all text-xs">
+              ${escHtml(data.confirm_url)}
+            </a>
+          </div>`;
+      } catch (e) {
+        result.innerHTML = '<div class="text-red-400 text-sm">An error occurred. Please try again.</div>';
+      }
+    }
+
+    loadProject();
+  </script>
+</body>
+</html>

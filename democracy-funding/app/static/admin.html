@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — Democracy Funding Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+
+  <nav class="bg-gray-900 border-b border-gray-800 px-6 py-4 flex items-center justify-between">
+    <a href="/" class="text-xl font-bold text-blue-400">Democracy Funding</a>
+    <span class="text-sm text-yellow-400 font-semibold">Admin Dashboard</span>
+  </nav>
+
+  <!-- Auth prompt -->
+  <div id="auth-prompt" class="max-w-sm mx-auto px-4 py-20">
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-8 text-center">
+      <div class="text-4xl mb-4">🔑</div>
+      <h2 class="text-xl font-bold mb-4">Admin Login</h2>
+      <input id="auth-user" type="text" placeholder="Username"
+             class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white mb-3 focus:outline-none focus:border-blue-500">
+      <input id="auth-pass" type="password" placeholder="Password"
+             class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white mb-4 focus:outline-none focus:border-blue-500"
+             onkeydown="if(event.key==='Enter')loadDashboard()">
+      <button onclick="loadDashboard()"
+              class="w-full bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-2 rounded-lg transition">
+        Login
+      </button>
+      <div id="auth-error" class="hidden mt-3 text-red-400 text-sm"></div>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboard" class="hidden max-w-6xl mx-auto px-4 py-10">
+
+    <!-- Tabs -->
+    <div class="flex gap-3 mb-8 flex-wrap">
+      <button onclick="showTab('projects')" id="tab-projects"
+              class="px-5 py-2 rounded-lg font-semibold text-sm bg-yellow-600 text-white">
+        Projects
+      </button>
+      <button onclick="showTab('donors')" id="tab-donors"
+              class="px-5 py-2 rounded-lg font-semibold text-sm bg-gray-800 text-gray-300 hover:bg-gray-700">
+        Donors
+      </button>
+      <button onclick="showTab('pledges')" id="tab-pledges"
+              class="px-5 py-2 rounded-lg font-semibold text-sm bg-gray-800 text-gray-300 hover:bg-gray-700">
+        Pledges
+      </button>
+    </div>
+
+    <!-- Projects Tab -->
+    <div id="projects-tab">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-2xl font-bold">All Projects</h2>
+        <select id="status-filter" onchange="loadProjects()" class="bg-gray-800 border border-gray-700 rounded px-3 py-1 text-sm">
+          <option value="">All statuses</option>
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="viable">Viable</option>
+          <option value="funded">Funded</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+      <div id="projects-list" class="space-y-3"></div>
+    </div>
+
+    <!-- Donors Tab -->
+    <div id="donors-tab" class="hidden">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-2xl font-bold">Anonymous Donors</h2>
+        <button onclick="showCreateDonor()" class="bg-green-600 hover:bg-green-500 text-white font-bold px-4 py-2 rounded-lg text-sm transition">
+          + New Access Code
+        </button>
+      </div>
+      <!-- Create donor form -->
+      <div id="create-donor-form" class="hidden bg-gray-900 border border-gray-800 rounded-xl p-6 mb-6">
+        <h3 class="font-bold mb-4">Create Donor Access Code</h3>
+        <input id="donor-alias" type="text" placeholder="Alias (e.g. 'Partner A' or leave blank)"
+               class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-white mb-3 text-sm focus:outline-none focus:border-blue-500">
+        <div class="flex gap-3">
+          <button onclick="createDonor()" class="bg-green-600 hover:bg-green-500 text-white font-bold px-4 py-2 rounded text-sm transition">Create</button>
+          <button onclick="hideDonorForm()" class="border border-gray-700 text-gray-400 px-4 py-2 rounded text-sm hover:text-white transition">Cancel</button>
+        </div>
+        <div id="new-code-result" class="hidden mt-4"></div>
+      </div>
+      <div id="donors-list" class="space-y-3"></div>
+    </div>
+
+    <!-- Pledges Tab -->
+    <div id="pledges-tab" class="hidden">
+      <h2 class="text-2xl font-bold mb-4">All Pledges</h2>
+      <div id="pledges-list" class="space-y-3"></div>
+    </div>
+  </div>
+
+  <script>
+    let authHeader = null;
+
+    function escHtml(s) {
+      const d = document.createElement('div');
+      d.textContent = s || '';
+      return d.innerHTML;
+    }
+
+    function fmtUsd(n) {
+      return '$' + Number(n).toLocaleString('en-US', {maximumFractionDigits: 0});
+    }
+
+    async function loadDashboard() {
+      const user = document.getElementById('auth-user').value.trim();
+      const pass = document.getElementById('auth-pass').value.trim();
+      authHeader = 'Basic ' + btoa(user + ':' + pass);
+      // Test auth
+      const res = await fetch('/api/admin/projects?limit=1', { headers: { Authorization: authHeader } });
+      if (!res.ok) {
+        document.getElementById('auth-error').textContent = 'Invalid credentials.';
+        document.getElementById('auth-error').classList.remove('hidden');
+        return;
+      }
+      document.getElementById('auth-prompt').classList.add('hidden');
+      document.getElementById('dashboard').classList.remove('hidden');
+      loadProjects();
+    }
+
+    function showTab(tab) {
+      ['projects', 'donors', 'pledges'].forEach(t => {
+        document.getElementById(`${t}-tab`).classList.toggle('hidden', t !== tab);
+        const btn = document.getElementById(`tab-${t}`);
+        btn.className = t === tab
+          ? 'px-5 py-2 rounded-lg font-semibold text-sm bg-yellow-600 text-white'
+          : 'px-5 py-2 rounded-lg font-semibold text-sm bg-gray-800 text-gray-300 hover:bg-gray-700';
+      });
+      if (tab === 'donors') loadDonors();
+      if (tab === 'pledges') loadPledges();
+    }
+
+    const STATUS_COLORS = {
+      pending: 'bg-gray-800 text-gray-300',
+      approved: 'bg-green-900 text-green-300',
+      viable: 'bg-purple-900 text-purple-300',
+      funded: 'bg-yellow-900 text-yellow-300',
+      rejected: 'bg-red-900 text-red-300',
+    };
+
+    async function loadProjects() {
+      const status = document.getElementById('status-filter')?.value || '';
+      const url = status ? `/api/admin/projects?status=${status}&limit=100` : '/api/admin/projects?limit=100';
+      const res = await fetch(url, { headers: { Authorization: authHeader } });
+      const projects = await res.json();
+      const list = document.getElementById('projects-list');
+      if (!projects.length) {
+        list.innerHTML = '<div class="text-gray-500 text-center py-8">No projects found.</div>';
+        return;
+      }
+      list.innerHTML = projects.map(p => `
+        <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+          <div class="flex items-start justify-between gap-4 flex-wrap">
+            <div class="flex-1 min-w-0">
+              <div class="flex gap-2 mb-1 flex-wrap">
+                <span class="text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[p.status]||'bg-gray-800 text-gray-400'}">${escHtml(p.status)}</span>
+                ${p.milestone_hit ? '<span class="text-xs px-2 py-0.5 rounded-full bg-blue-900 text-blue-300">1M Votes</span>' : ''}
+                ${p.outreach_triggered ? '<span class="text-xs px-2 py-0.5 rounded-full bg-orange-900 text-orange-300">Outreach Done</span>' : ''}
+              </div>
+              <h3 class="font-bold truncate">${escHtml(p.title)}</h3>
+              <div class="text-xs text-gray-500 mt-1">
+                ${p.vote_count.toLocaleString()} votes
+                ${p.estimated_budget ? '· ' + fmtUsd(p.estimated_budget) : ''}
+                ${p.submitter_name ? '· ' + escHtml(p.submitter_name) : ''}
+              </div>
+            </div>
+            <div class="flex gap-2 flex-wrap shrink-0">
+              ${['approved','viable','funded','rejected'].map(s =>
+                s !== p.status ? `<button onclick="setStatus('${p.uuid}','${s}')" class="text-xs px-3 py-1 rounded border border-gray-700 hover:bg-gray-800 text-gray-300 transition">${s}</button>` : ''
+              ).join('')}
+              ${!p.outreach_triggered && p.milestone_hit ? `<button onclick="triggerOutreach('${p.uuid}')" class="text-xs px-3 py-1 rounded bg-orange-700 hover:bg-orange-600 text-white transition">Mark Outreach</button>` : ''}
+              <a href="/project/${p.uuid}" target="_blank" class="text-xs px-3 py-1 rounded border border-gray-700 hover:bg-gray-800 text-gray-300 transition">View</a>
+            </div>
+          </div>
+        </div>`).join('');
+    }
+
+    async function setStatus(uuid, status) {
+      const res = await fetch(`/api/admin/projects/${uuid}/status`, {
+        method: 'PATCH',
+        headers: { Authorization: authHeader, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
+      if (res.ok) loadProjects();
+      else alert('Failed to update status');
+    }
+
+    async function triggerOutreach(uuid) {
+      const res = await fetch(`/api/admin/projects/${uuid}/outreach`, {
+        method: 'PATCH', headers: { Authorization: authHeader },
+      });
+      if (res.ok) loadProjects();
+    }
+
+    async function loadDonors() {
+      const res = await fetch('/api/admin/billionaires', { headers: { Authorization: authHeader } });
+      const donors = await res.json();
+      const list = document.getElementById('donors-list');
+      if (!donors.length) {
+        list.innerHTML = '<div class="text-gray-500 text-center py-8">No donors yet. Create one above.</div>';
+        return;
+      }
+      list.innerHTML = donors.map(d => `
+        <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 flex items-center justify-between gap-4">
+          <div>
+            <div class="font-bold">${escHtml(d.alias)}</div>
+            <div class="text-xs text-gray-500 font-mono mt-1 break-all">${escHtml(d.access_code)}</div>
+            <div class="text-xs text-gray-600 mt-1">Created ${new Date(d.created_at).toLocaleDateString()} ${d.last_seen_at ? '· Last seen ' + new Date(d.last_seen_at).toLocaleDateString() : ''}</div>
+          </div>
+          <div class="shrink-0">
+            ${d.is_active
+              ? `<button onclick="deactivateDonor(${d.id})" class="text-xs px-3 py-1 rounded border border-red-800 text-red-400 hover:bg-red-900 transition">Deactivate</button>`
+              : '<span class="text-xs text-gray-600">Inactive</span>'}
+          </div>
+        </div>`).join('');
+    }
+
+    function showCreateDonor() {
+      document.getElementById('create-donor-form').classList.remove('hidden');
+    }
+
+    function hideDonorForm() {
+      document.getElementById('create-donor-form').classList.add('hidden');
+    }
+
+    async function createDonor() {
+      const alias = document.getElementById('donor-alias').value.trim() || 'Anonymous Donor';
+      const res = await fetch('/api/admin/billionaires', {
+        method: 'POST',
+        headers: { Authorization: authHeader, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ alias }),
+      });
+      const data = await res.json();
+      const result = document.getElementById('new-code-result');
+      result.innerHTML = `
+        <div class="bg-green-900 border border-green-700 rounded-lg p-4 text-sm">
+          <p class="text-green-300 font-bold mb-1">Access code created for "${escHtml(data.alias)}"</p>
+          <p class="font-mono text-white break-all">${escHtml(data.access_code)}</p>
+          <p class="text-green-400 text-xs mt-2">Share this code securely with the donor. It will not be shown again.</p>
+        </div>`;
+      result.classList.remove('hidden');
+      loadDonors();
+    }
+
+    async function deactivateDonor(id) {
+      if (!confirm('Deactivate this donor? They will lose access immediately.')) return;
+      const res = await fetch(`/api/admin/billionaires/${id}/deactivate`, {
+        method: 'PATCH', headers: { Authorization: authHeader },
+      });
+      if (res.ok) loadDonors();
+    }
+
+    async function loadPledges() {
+      const res = await fetch('/api/admin/pledges', { headers: { Authorization: authHeader } });
+      const pledges = await res.json();
+      const list = document.getElementById('pledges-list');
+      if (!pledges.length) {
+        list.innerHTML = '<div class="text-gray-500 text-center py-8">No pledges yet.</div>';
+        return;
+      }
+      const PLEDGE_COLORS = {pledged:'text-blue-400', in_escrow:'text-yellow-400', released:'text-green-400', withdrawn:'text-red-400'};
+      list.innerHTML = pledges.map(p => `
+        <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 flex items-center justify-between gap-4">
+          <div>
+            <div class="font-bold">${escHtml(p.project_title)}</div>
+            <div class="text-xs text-gray-500 mt-1">${new Date(p.pledged_at).toLocaleDateString()} ${p.milestone_verified ? '· ✓ Milestone Verified' : ''}</div>
+          </div>
+          <div class="text-right">
+            <div class="text-xl font-bold text-green-400">${fmtUsd(p.amount_usd)}</div>
+            <div class="text-sm ${PLEDGE_COLORS[p.status]||'text-gray-400'} capitalize mb-2">${p.status.replace('_',' ')}</div>
+            <select onchange="setPledgeStatus(${p.id}, this.value)" class="text-xs bg-gray-800 border border-gray-700 rounded px-2 py-1 text-gray-300">
+              <option value="">Move to...</option>
+              ${['pledged','in_escrow','released','withdrawn'].filter(s=>s!==p.status).map(s=>`<option value="${s}">${s.replace('_',' ')}</option>`).join('')}
+            </select>
+          </div>
+        </div>`).join('');
+    }
+
+    async function setPledgeStatus(id, status) {
+      if (!status) return;
+      const res = await fetch(`/api/admin/pledges/${id}/status?status=${status}`, {
+        method: 'PATCH', headers: { Authorization: authHeader },
+      });
+      if (res.ok) loadPledges();
+      else alert('Failed to update pledge status');
+    }
+  </script>
+</body>
+</html>

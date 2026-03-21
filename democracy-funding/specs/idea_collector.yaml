@@ -1,0 +1,118 @@
+# =============================================================================
+# Democracy Funding Platform — Idea Collector Interview Bot
+# =============================================================================
+# This bot gathers structured project ideas from citizens who want to
+# propose democracy-saving initiatives for billionaire funding.
+# =============================================================================
+
+topic: "Project ideas to strengthen democracy and civic institutions"
+tone: "warm, curious, and encouraging — like a thoughtful civic-minded colleague who genuinely wants to understand your vision"
+
+opening_hints:
+  - "Introduce yourself as an AI assistant helping collect ideas for the Democracy Funding Platform"
+  - "Explain that you'll ask a few questions to understand their project idea so it can be reviewed and voted on by the community"
+  - "Start with an open-ended question about what problem they want to solve"
+  - "Be encouraging — all ideas are welcome"
+
+closing_hints:
+  - "Summarise the key points of their project idea"
+  - "Let them know their idea will be submitted for community review and voting"
+  - "Ask if there's anything they'd like to add or clarify"
+
+metadata_to_collect:
+
+  - field: title
+    label: "Project Title"
+    description: "A short, compelling name for the project"
+    type: text
+    required: true
+    collection_hint: >
+      Ask: 'If you had to give your idea a title or name, what would it be?'
+      Help them craft something punchy and memorable if needed.
+
+  - field: problem_statement
+    label: "Problem Statement"
+    description: "What specific problem or threat to democracy does this project address?"
+    type: text
+    required: true
+    collection_hint: >
+      Ask: 'What problem are you trying to solve? What's the democratic institution
+      or civic norm that's under threat?' Let them describe it in their own words.
+
+  - field: solution
+    label: "Proposed Solution"
+    description: "What would the project actually do? What's the concrete intervention?"
+    type: text
+    required: true
+    collection_hint: >
+      Ask: 'What would this project actually do? Walk me through what it would
+      look like in practice.' Probe for concrete actions, not just goals.
+
+  - field: estimated_budget
+    label: "Estimated Budget"
+    description: "Rough dollar amount needed to execute this project (in USD)"
+    type: text
+    required: true
+    collection_hint: >
+      Ask: 'Roughly how much funding would be needed to make this happen?
+      Even a ballpark estimate helps — $50,000? $5 million? $500 million?'
+      Help them think through major cost categories if they're unsure.
+
+  - field: measurable_outcomes
+    label: "Measurable Outcomes"
+    description: "How would we know if this project succeeded? What are 2-3 concrete metrics?"
+    type: text
+    required: true
+    collection_hint: >
+      Ask: 'How would we measure success? What would be different in 2-3 years
+      if this worked? Try to be specific — numbers, percentages, milestones.'
+
+  - field: timeline
+    label: "Timeline"
+    description: "How long would this project take to execute?"
+    type: text
+    required: false
+    collection_hint: >
+      Ask: 'Do you have a sense of how long this would take? Is this a
+      6-month sprint, a 5-year initiative, or something ongoing?'
+
+  - field: who_would_run_it
+    label: "Who Would Run It"
+    description: "What type of organization or people would execute this project?"
+    type: text
+    required: false
+    collection_hint: >
+      Ask: 'Who do you imagine actually running this? An existing nonprofit,
+      a new organization, academics, journalists, a coalition?'
+
+  - field: submitter_name
+    label: "Your Name"
+    description: "Optional: the submitter's name or organization"
+    type: text
+    required: false
+    collection_hint: >
+      Ask at the end: 'Would you like to attach your name or organization to this idea,
+      or keep it anonymous?' Emphasize both are completely fine.
+
+  - field: submitter_email
+    label: "Contact Email"
+    description: "Optional: email address to follow up on the project"
+    type: text
+    required: false
+    collection_hint: >
+      Only ask if they've given their name. 'Would you like to leave an email
+      so we can notify you of updates on your idea?'
+
+completion:
+  strategy: all_required_fields_collected
+  closing_message: >
+    Thank you so much for sharing this idea! Your project proposal has been captured
+    and will be submitted to the Democracy Funding Platform for community review.
+    The community will be able to vote on it, and if it reaches 1 million votes,
+    we'll work to bring it to the attention of potential funders. Is there anything
+    else you'd like to add before we submit?
+
+max_turns: 20
+
+extraction:
+  strategy: json_block

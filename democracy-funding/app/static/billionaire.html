@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Private Donor Portal — Democracy Funding Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+
+  <nav class="bg-gray-900 border-b border-gray-800 px-6 py-4 flex items-center justify-between">
+    <a href="/" class="text-xl font-bold text-blue-400">Democracy Funding</a>
+    <div class="flex items-center gap-4">
+      <span id="nav-alias" class="text-sm text-gray-400 hidden"></span>
+      <button id="logout-btn" onclick="logout()" class="hidden text-sm text-red-400 hover:text-red-300 transition">Logout</button>
+    </div>
+  </nav>
+
+  <!-- Login panel -->
+  <div id="login-panel" class="max-w-md mx-auto px-4 py-20 text-center">
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-10">
+      <div class="text-5xl mb-4">🔒</div>
+      <h1 class="text-3xl font-bold mb-2">Private Donor Portal</h1>
+      <p class="text-gray-400 text-sm mb-8">
+        This portal is for authorized donors only. Enter your private access code to continue.
+        Your identity remains anonymous — no personal information is stored.
+      </p>
+      <input id="access-code" type="password" placeholder="Enter your access code"
+             class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white mb-4 focus:outline-none focus:border-blue-500"
+             onkeydown="if(event.key==='Enter')login()">
+      <button onclick="login()"
+              class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg transition">
+        Access Portal
+      </button>
+      <div id="login-error" class="hidden mt-4 text-red-400 text-sm"></div>
+    </div>
+    <p class="mt-6 text-xs text-gray-600">
+      To request access to this portal, contact the platform administrators.
+    </p>
+  </div>
+
+  <!-- Main portal (shown after login) -->
+  <div id="portal" class="hidden max-w-4xl mx-auto px-4 py-10">
+
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold mb-2">Fundable Projects</h1>
+      <p class="text-gray-400">
+        These projects have been reviewed and approved for funding consideration.
+        Your pledges are held in escrow and released only when project milestones are independently verified.
+        <strong class="text-white">Your identity remains completely anonymous.</strong>
+      </p>
+    </div>
+
+    <!-- My pledges toggle -->
+    <div class="flex gap-4 mb-8">
+      <button onclick="showTab('projects')" id="tab-projects"
+              class="px-6 py-2 rounded-lg font-semibold bg-blue-600 text-white text-sm">
+        Fundable Projects
+      </button>
+      <button onclick="showTab('pledges')" id="tab-pledges"
+              class="px-6 py-2 rounded-lg font-semibold bg-gray-800 text-gray-300 text-sm hover:bg-gray-700">
+        My Pledges
+      </button>
+    </div>
+
+    <!-- Projects tab -->
+    <div id="projects-tab">
+      <div id="projects-list" class="space-y-4">
+        <div class="text-gray-500 text-center py-12">Loading projects...</div>
+      </div>
+    </div>
+
+    <!-- Pledges tab -->
+    <div id="pledges-tab" class="hidden">
+      <div id="pledges-list" class="space-y-4">
+        <div class="text-gray-500 text-center py-12">Loading pledges...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pledge Modal -->
+  <div id="pledge-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
+    <div class="bg-gray-900 border border-gray-700 rounded-2xl p-8 max-w-md w-full">
+      <h2 class="text-2xl font-bold mb-1">Fund This Project</h2>
+      <p id="pledge-project-title" class="text-gray-400 text-sm mb-6"></p>
+      <label class="block text-sm text-gray-400 mb-1">Pledge Amount (USD)</label>
+      <input id="pledge-amount" type="number" min="1000" placeholder="e.g. 1000000"
+             class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white mb-4 focus:outline-none focus:border-blue-500">
+      <label class="block text-sm text-gray-400 mb-1">Private Notes (optional)</label>
+      <textarea id="pledge-notes" rows="3" placeholder="Any conditions, milestones, or notes..."
+                class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white mb-6 focus:outline-none focus:border-blue-500 resize-none"></textarea>
+      <p class="text-xs text-gray-500 mb-4">
+        Your pledge will be held in escrow until project milestones are independently verified.
+        You may withdraw at any point before milestone verification.
+      </p>
+      <div class="flex gap-3">
+        <button onclick="submitPledge()"
+                class="flex-1 bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-lg transition">
+          Confirm Pledge
+        </button>
+        <button onclick="closePledgeModal()"
+                class="px-4 py-3 border border-gray-700 rounded-lg text-gray-400 hover:text-white transition">
+          Cancel
+        </button>
+      </div>
+      <div id="pledge-result" class="hidden mt-4"></div>
+    </div>
+  </div>
+
+  <script>
+    let currentProjectUuid = null;
+
+    function escHtml(s) {
+      const d = document.createElement('div');
+      d.textContent = s || '';
+      return d.innerHTML;
+    }
+
+    function fmtUsd(n) {
+      return '$' + Number(n).toLocaleString('en-US', {maximumFractionDigits: 0});
+    }
+
+    async function login() {
+      const code = document.getElementById('access-code').value.trim();
+      if (!code) return;
+      const err = document.getElementById('login-error');
+      err.classList.add('hidden');
+      try {
+        const res = await fetch('/api/billionaire/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ access_code: code }),
+          credentials: 'include',
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          err.textContent = data.detail || 'Invalid access code';
+          err.classList.remove('hidden');
+          return;
+        }
+        document.getElementById('login-panel').classList.add('hidden');
+        document.getElementById('portal').classList.remove('hidden');
+        document.getElementById('nav-alias').textContent = data.alias;
+        document.getElementById('nav-alias').classList.remove('hidden');
+        document.getElementById('logout-btn').classList.remove('hidden');
+        loadProjects();
+      } catch {
+        err.textContent = 'Connection error. Please try again.';
+        err.classList.remove('hidden');
+      }
+    }
+
+    async function logout() {
+      await fetch('/api/billionaire/logout', { method: 'POST', credentials: 'include' });
+      window.location.reload();
+    }
+
+    function showTab(tab) {
+      ['projects', 'pledges'].forEach(t => {
+        document.getElementById(`${t}-tab`).classList.toggle('hidden', t !== tab);
+        const btn = document.getElementById(`tab-${t}`);
+        btn.className = t === tab
+          ? 'px-6 py-2 rounded-lg font-semibold bg-blue-600 text-white text-sm'
+          : 'px-6 py-2 rounded-lg font-semibold bg-gray-800 text-gray-300 text-sm hover:bg-gray-700';
+      });
+      if (tab === 'pledges') loadPledges();
+    }
+
+    async function loadProjects() {
+      const list = document.getElementById('projects-list');
+      try {
+        const res = await fetch('/api/billionaire/projects', { credentials: 'include' });
+        const projects = await res.json();
+        if (!projects.length) {
+          list.innerHTML = '<div class="text-gray-500 text-center py-12">No fundable projects at this time.</div>';
+          return;
+        }
+        list.innerHTML = projects.map(p => `
+          <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex-1">
+                <div class="flex gap-2 mb-2">
+                  <span class="text-xs px-2 py-0.5 rounded-full ${p.status === 'viable' ? 'bg-purple-900 text-purple-300' : 'bg-green-900 text-green-300'}">${escHtml(p.status)}</span>
+                  ${p.milestone_hit ? '<span class="text-xs px-2 py-0.5 rounded-full bg-blue-900 text-blue-300">1M Votes</span>' : ''}
+                </div>
+                <h3 class="text-xl font-bold mb-2">${escHtml(p.title)}</h3>
+                <p class="text-gray-400 text-sm mb-3 line-clamp-2">${escHtml(p.description)}</p>
+                <div class="flex gap-4 text-sm text-gray-500">
+                  <span>${p.vote_count.toLocaleString()} votes</span>
+                  ${p.estimated_budget ? `<span>Est. ${fmtUsd(p.estimated_budget)}</span>` : ''}
+                </div>
+              </div>
+              <div class="shrink-0 flex flex-col gap-2">
+                <button onclick="openPledgeModal('${escHtml(p.uuid)}', '${escHtml(p.title)}')"
+                        class="bg-green-600 hover:bg-green-500 text-white font-bold px-6 py-2 rounded-lg transition text-sm">
+                  Pledge Funding
+                </button>
+                <a href="/project/${escHtml(p.uuid)}" target="_blank"
+                   class="text-center text-xs text-gray-400 hover:text-white transition py-1">
+                  View Details →
+                </a>
+              </div>
+            </div>
+          </div>`).join('');
+      } catch {
+        list.innerHTML = '<div class="text-red-400 text-center py-12">Failed to load projects.</div>';
+      }
+    }
+
+    async function loadPledges() {
+      const list = document.getElementById('pledges-list');
+      try {
+        const res = await fetch('/api/billionaire/pledges', { credentials: 'include' });
+        const pledges = await res.json();
+        if (!pledges.length) {
+          list.innerHTML = '<div class="text-gray-500 text-center py-12">You have not made any pledges yet.</div>';
+          return;
+        }
+        const statusColors = {pledged:'text-blue-400', in_escrow:'text-yellow-400', released:'text-green-400', withdrawn:'text-red-400'};
+        list.innerHTML = pledges.map(p => `
+          <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 flex items-center justify-between gap-4">
+            <div>
+              <h3 class="font-bold text-white">${escHtml(p.project_title)}</h3>
+              <div class="text-sm text-gray-400 mt-1">${new Date(p.pledged_at).toLocaleDateString()}</div>
+            </div>
+            <div class="text-right">
+              <div class="text-2xl font-bold text-green-400">${fmtUsd(p.amount_usd)}</div>
+              <div class="text-sm ${statusColors[p.status] || 'text-gray-400'} capitalize">${p.status.replace('_',' ')}</div>
+            </div>
+          </div>`).join('');
+      } catch {
+        list.innerHTML = '<div class="text-red-400 text-center py-12">Failed to load pledges.</div>';
+      }
+    }
+
+    function openPledgeModal(uuid, title) {
+      currentProjectUuid = uuid;
+      document.getElementById('pledge-project-title').textContent = title;
+      document.getElementById('pledge-amount').value = '';
+      document.getElementById('pledge-notes').value = '';
+      document.getElementById('pledge-result').classList.add('hidden');
+      document.getElementById('pledge-modal').classList.remove('hidden');
+    }
+
+    function closePledgeModal() {
+      document.getElementById('pledge-modal').classList.add('hidden');
+    }
+
+    async function submitPledge() {
+      const amount = parseFloat(document.getElementById('pledge-amount').value);
+      if (!amount || amount < 1) { alert('Please enter a valid pledge amount.'); return; }
+      const notes = document.getElementById('pledge-notes').value.trim();
+      const result = document.getElementById('pledge-result');
+      result.innerHTML = '<div class="text-gray-400 text-sm">Processing...</div>';
+      result.classList.remove('hidden');
+      try {
+        const res = await fetch('/api/billionaire/pledge', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ project_uuid: currentProjectUuid, amount_usd: amount, notes: notes || null }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          result.innerHTML = `<div class="text-red-400 text-sm">${escHtml(data.detail)}</div>`;
+          return;
+        }
+        result.innerHTML = `
+          <div class="bg-green-900 border border-green-700 rounded-lg p-4 text-sm text-green-200">
+            ✅ Pledge of ${fmtUsd(data.amount_usd)} confirmed for "${escHtml(data.project_title)}".
+            Status: <strong>${data.status}</strong>
+          </div>`;
+        setTimeout(() => { closePledgeModal(); loadProjects(); }, 2000);
+      } catch {
+        result.innerHTML = '<div class="text-red-400 text-sm">An error occurred.</div>';
+      }
+    }
+  </script>
+</body>
+</html>

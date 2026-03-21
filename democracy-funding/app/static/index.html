@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Democracy Funding Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+
+  <!-- Nav -->
+  <nav class="bg-gray-900 border-b border-gray-800 px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <span class="text-2xl font-bold text-blue-400">Democracy Funding</span>
+      <span class="text-xs bg-blue-900 text-blue-300 px-2 py-0.5 rounded-full">Beta</span>
+    </div>
+    <div class="flex gap-4 text-sm">
+      <a href="/" class="text-blue-400 font-semibold">Projects</a>
+      <a href="/interview" class="text-gray-400 hover:text-white transition">Submit Idea</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="max-w-4xl mx-auto px-6 py-16 text-center">
+    <h1 class="text-5xl font-extrabold mb-6 leading-tight">
+      Fund the Ideas That<br>
+      <span class="text-blue-400">Save Our Democracy</span>
+    </h1>
+    <p class="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
+      Share your project idea, earn community votes, and unlock anonymous funding from donors who believe in democratic institutions. Every voice counts. Every vote matters.
+    </p>
+    <div class="flex gap-4 justify-center flex-wrap">
+      <a href="/interview"
+         class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 py-3 rounded-lg transition text-lg">
+        Submit Your Idea
+      </a>
+      <a href="#projects"
+         class="border border-gray-600 hover:border-gray-400 text-gray-300 font-bold px-8 py-3 rounded-lg transition text-lg">
+        Browse Projects
+      </a>
+    </div>
+
+    <!-- Stats bar -->
+    <div class="mt-16 grid grid-cols-3 gap-6" id="stats-bar">
+      <div class="bg-gray-900 rounded-xl p-6">
+        <div class="text-3xl font-bold text-blue-400" id="stat-projects">—</div>
+        <div class="text-sm text-gray-500 mt-1">Projects Submitted</div>
+      </div>
+      <div class="bg-gray-900 rounded-xl p-6">
+        <div class="text-3xl font-bold text-green-400" id="stat-votes">—</div>
+        <div class="text-sm text-gray-500 mt-1">Total Votes Cast</div>
+      </div>
+      <div class="bg-gray-900 rounded-xl p-6">
+        <div class="text-3xl font-bold text-yellow-400" id="stat-milestone">—</div>
+        <div class="text-sm text-gray-500 mt-1">Reached 1M Votes</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="bg-gray-900 py-16">
+    <div class="max-w-4xl mx-auto px-6">
+      <h2 class="text-3xl font-bold text-center mb-12">How It Works</h2>
+      <div class="grid md:grid-cols-4 gap-8">
+        <div class="text-center">
+          <div class="text-4xl mb-4">💡</div>
+          <h3 class="font-bold text-white mb-2">1. Share Your Idea</h3>
+          <p class="text-gray-400 text-sm">Our AI assistant interviews you to capture your project idea in a structured format.</p>
+        </div>
+        <div class="text-center">
+          <div class="text-4xl mb-4">🗳️</div>
+          <h3 class="font-bold text-white mb-2">2. Community Votes</h3>
+          <p class="text-gray-400 text-sm">Citizens vote on the projects they believe in most. One vote per person per project.</p>
+        </div>
+        <div class="text-center">
+          <div class="text-4xl mb-4">🚀</div>
+          <h3 class="font-bold text-white mb-2">3. Reach 1M Votes</h3>
+          <p class="text-gray-400 text-sm">Projects that hit 1,000,000 votes get elevated to our network of potential funders.</p>
+        </div>
+        <div class="text-center">
+          <div class="text-4xl mb-4">🔒</div>
+          <h3 class="font-bold text-white mb-2">4. Escrow Funding</h3>
+          <p class="text-gray-400 text-sm">Anonymous donors fund projects. Money held in escrow, released when milestones are verified.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Projects list -->
+  <section id="projects" class="max-w-4xl mx-auto px-6 py-16">
+    <h2 class="text-3xl font-bold mb-4">Active Projects</h2>
+    <p class="text-gray-400 mb-8">Vote for the projects you believe in most. Reach 1,000,000 votes to trigger funder outreach.</p>
+
+    <!-- Filter -->
+    <div class="flex gap-3 mb-8 flex-wrap">
+      <button onclick="loadProjects()" class="filter-btn active px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white">All</button>
+      <button onclick="loadProjects('approved')" class="filter-btn px-4 py-2 rounded-lg text-sm font-medium bg-gray-800 text-gray-300 hover:bg-gray-700">Approved</button>
+      <button onclick="loadProjects('viable')" class="filter-btn px-4 py-2 rounded-lg text-sm font-medium bg-gray-800 text-gray-300 hover:bg-gray-700">Fundable</button>
+      <button onclick="loadProjects('funded')" class="filter-btn px-4 py-2 rounded-lg text-sm font-medium bg-gray-800 text-gray-300 hover:bg-gray-700">Funded</button>
+    </div>
+
+    <div id="projects-list" class="space-y-4">
+      <div class="text-gray-500 text-center py-12">Loading projects...</div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t border-gray-800 py-8 text-center text-gray-600 text-sm">
+    <p>Democracy Funding Platform — All funding held in escrow until milestones are verified.</p>
+    <p class="mt-1">Donor anonymity is protected. Project submissions are publicly visible.</p>
+  </footer>
+
+  <script>
+    const THRESHOLD = 1000000;
+
+    function fmtVotes(n) {
+      if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+      if (n >= 1000) return (n/1000).toFixed(1) + 'K';
+      return n.toString();
+    }
+
+    function statusBadge(status) {
+      const map = {
+        approved: 'bg-green-900 text-green-300',
+        viable: 'bg-purple-900 text-purple-300',
+        funded: 'bg-yellow-900 text-yellow-300',
+      };
+      return `<span class="text-xs px-2 py-0.5 rounded-full ${map[status] || 'bg-gray-800 text-gray-400'}">${status}</span>`;
+    }
+
+    async function loadProjects(status) {
+      const list = document.getElementById('projects-list');
+      list.innerHTML = '<div class="text-gray-500 text-center py-12">Loading...</div>';
+      const url = status ? `/api/projects?status=${status}` : '/api/projects';
+      try {
+        const res = await fetch(url);
+        const projects = await res.json();
+
+        // Update stats
+        document.getElementById('stat-projects').textContent = projects.length;
+        const totalVotes = projects.reduce((s, p) => s + p.vote_count, 0);
+        document.getElementById('stat-votes').textContent = fmtVotes(totalVotes);
+        const milestones = projects.filter(p => p.milestone_hit).length;
+        document.getElementById('stat-milestone').textContent = milestones;
+
+        if (projects.length === 0) {
+          list.innerHTML = '<div class="text-gray-500 text-center py-12">No projects found. <a href="/interview" class="text-blue-400 hover:underline">Submit the first one!</a></div>';
+          return;
+        }
+
+        list.innerHTML = projects.map(p => {
+          const pct = Math.min(100, (p.vote_count / THRESHOLD) * 100);
+          return `
+            <a href="/project/${p.uuid}" class="block bg-gray-900 rounded-xl p-6 hover:bg-gray-800 transition border border-gray-800 hover:border-gray-700">
+              <div class="flex items-start justify-between gap-4">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-2">
+                    ${statusBadge(p.status)}
+                    ${p.milestone_hit ? '<span class="text-xs px-2 py-0.5 rounded-full bg-blue-900 text-blue-300">🎉 1M Reached</span>' : ''}
+                  </div>
+                  <h3 class="text-xl font-bold text-white mb-2 truncate">${escHtml(p.title)}</h3>
+                  <p class="text-gray-400 text-sm line-clamp-2">${escHtml(p.description)}</p>
+                </div>
+                <div class="text-right shrink-0">
+                  <div class="text-2xl font-bold text-blue-400">${fmtVotes(p.vote_count)}</div>
+                  <div class="text-xs text-gray-500">votes</div>
+                  ${p.estimated_budget ? `<div class="text-xs text-gray-500 mt-1">$${(p.estimated_budget/1e6).toFixed(1)}M budget</div>` : ''}
+                </div>
+              </div>
+              <div class="mt-4">
+                <div class="flex justify-between text-xs text-gray-500 mb-1">
+                  <span>Progress to 1M votes</span>
+                  <span>${pct.toFixed(1)}%</span>
+                </div>
+                <div class="bg-gray-800 rounded-full h-2">
+                  <div class="bg-blue-500 h-2 rounded-full transition-all" style="width:${pct}%"></div>
+                </div>
+              </div>
+            </a>`;
+        }).join('');
+      } catch (e) {
+        list.innerHTML = '<div class="text-red-400 text-center py-12">Failed to load projects.</div>';
+      }
+    }
+
+    function escHtml(s) {
+      const d = document.createElement('div');
+      d.textContent = s || '';
+      return d.innerHTML;
+    }
+
+    loadProjects();
+  </script>
+</body>
+</html>
